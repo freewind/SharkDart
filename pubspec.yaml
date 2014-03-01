@@ -1,0 +1,7 @@
+name: SharkDart
+version: 0.1.0
+dependencies:
+  unittest: any
+  petitparser:
+    git: https://github.com/renggli/PetitParserDart.git
+  path: ">=1.0.0 <2.0.0"
