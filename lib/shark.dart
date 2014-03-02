@@ -1,13 +1,29 @@
 library shark;
 
+import "dart:io";
 import "package:petitparser/petitparser.dart";
 
 part "src/parser.dart";
 part "src/ast.dart";
 part "src/helper.dart";
+part "src/tags.dart";
+part "src/compiler.dart";
 
-var parser = new SharkParser();
+var tagRepository = new TagRepository();
 
-SharkDocument parse(String input) => parser.parse(input);
+SharkDocument parse(String input) => new SharkParser().parse(input).value;
 
+String compile(String input) => new Compiler().compileTemplateString(input);
+
+CompilableElement libraryStmt(String input) => new CompilableElement(CompilableElementType.LIBRARY, input);
+
+CompilableElement importStmt(String input) => new CompilableElement(CompilableElementType.IMPORT, input);
+
+CompilableElement functionParams(String input) => new CompilableElement(CompilableElementType.FUNCTION_PARAM, input);
+
+CompilableElement stmt(String input) => new CompilableElement(CompilableElementType.FUNCTION_BODY_STATEMENT, input);
+
+CompilableElement expr(String input) => new CompilableElement(CompilableElementType.FUNCTION_BODY_EXPRESSION, input);
+
+CompilableElement text(String input) => new CompilableElement(CompilableElementType.FUNCTION_BODY_TEXT, input);
 

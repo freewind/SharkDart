@@ -12,32 +12,34 @@ abstract class SharkNode {
 
 }
 
-class SharkDocument {
+class SharkDocument extends SharkNode {
   List children;
 
   SharkDocument(List children) {
     this.children = children;
-    _addTails(this.children);
+    _validateAndFix();
+    _addTailsForTopLevelTags();
   }
 
-  _addTails(List nodes) {
-    for (var i = 0; i < nodes.length; i++) {
-      var node = nodes[i];
+  _validateAndFix() {
+
+  }
+
+  _addTailsForTopLevelTags() {
+    for (var i = 0; i < children.length; i++) {
+      var node = children[i];
       if (node is SharkTag) {
         var tag = node as SharkTag;
-        tag.tail = nodes.sublist(i + 1);
-        _addTails(tag.body);
+        tag.tail = children.sublist(i + 1);
       }
     }
   }
 
   @override
-  toString() {
-    var buffer = new StringBuffer();
+  void toString0(buffer) {
     for (var child in children) {
       _write(buffer, child);
     }
-    return buffer.toString();
   }
 
 }

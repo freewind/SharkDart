@@ -1,13 +1,8 @@
 part of shark_tests;
 
 successParse(String input, String output) {
-  var result = parse(input);
-  if (result.isSuccess) {
-    var str = result.value.toString();
-    expect(str, output);
-  } else {
-    fail("Parse faield: $result");
-  }
+  var str = parse(input).toString();
+  expect(str, output);
 }
 
 test_parser() {
@@ -83,19 +78,15 @@ test_parser() {
       successParse('@aaa { @bbb { @user } ccc @!ddd { @@ } } eee',
       'SharkTag(aaa, (), { SharkTag(bbb, (), { SharkExpression(user) }) ccc SharkTag(ddd, (), { @@ }) }) eee');
     });
-    solo_test('tails', () {
-      var result = parse('@aaa { @bbb {} ccc @ddd {} } eee');
-      expect(result.isSuccess, isTrue);
-      var document = result.value;
-
+    test('top level tags will have tails', () {
+      var document = parse('@aaa { @bbb {} ccc @ddd {} } eee');
       var aaa = document.children[0];
       expect(aaa.tail, [' eee']);
-
+    });
+    test('non-top level tags will not have tails', () {
+      var document = parse('@aaa { @bbb {} ccc }');
       var bbb = document.children[0].body[1];
-      expect(bbb.tail.map((n) => n.toString()), [' ccc ', 'SharkTag(ddd, (), {})', ' ']);
-
-      var ddd = document.children[0].body[3];
-      expect(ddd.tail, [' ']);
+      expect(bbb.tail, null);
     });
   });
 }
