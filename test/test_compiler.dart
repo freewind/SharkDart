@@ -17,14 +17,50 @@ _margin(String text, String delimiter) {
 }
 
 test_compiler() {
-  solo_test('plain text template', () {
-    successCompiled('hello world', '''
+  testCompileString();
+  testCompileFiles();
+}
+
+testCompileString() {
+  group('compile string', () {
+    test('plain text template', () {
+      successCompiled('hello world', '''
       | String render() {
       |   var sb = new StringBuffer();
       |   sb.write('hello world');
       |   return sb.toString();
       | }
       ''');
+    });
+    test('plain text template', () {
+      successCompiled("hello 'world", '''
+      | String render() {
+      |   var sb = new StringBuffer();
+      |   sb.write('hello \'world');
+      |   return sb.toString();
+      | }
+      ''');
+    });
   });
+}
 
+testCompileFiles() {
+  group('compile file', () {
+    final templateRoot = new Directory(path.join(path.current, "templates"));
+    final compiledRoot = new Directory(path.join(path.current, "compiled"));
+
+    templateRoot.listSync(recursive:true, followLinks:false).where((file) => file is File).forEach((file) {
+      test(file.path, () {
+        var callback = expectAsync0(() {
+        });
+        var relativePath = path.relative(file.path, from: templateRoot.path);
+        var compiledFile = new File(path.join(compiledRoot.path, relativePath.replaceAll(path.extension(relativePath), ".dart")));
+        compileTemplateFile(templateRoot, relativePath).then((dart) {
+          var expectedDart = compiledFile.readAsStringSync();
+          expect(dart, expectedDart);
+          callback();
+        });
+      });
+    });
+  });
 }

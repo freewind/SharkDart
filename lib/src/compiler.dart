@@ -36,8 +36,16 @@ dynamic toCompilable(sharkNode) {
 
 class Compiler {
 
-  String compileTemplateFile(File file) {
+  Future<String> compileTemplateFile(Directory root, String relativeFilePath) {
+    var file = new File(path.join(root.path, relativeFilePath));
+    return file.readAsString().then((template) {
+      var document = parse(template);
+      var compilableTemplate = new CompilableTemplate(document);
 
+      var libraryName = _getLibrary(relativeFilePath);
+      compilableTemplate.libraryStatement = "library shark.views.${libraryName};";
+      return compilableTemplate.generate();
+    });
   }
 
   String compileTemplateString(String template) {
@@ -46,6 +54,12 @@ class Compiler {
     return compilableTemplate.generate();
   }
 
+  String _getLibrary(String relativePath) {
+    var items = path.split(relativePath);
+    String filename = items.removeLast();
+    items.add(path.basenameWithoutExtension(filename));
+    return items.join('.');
+  }
 }
 
 class CompilableTemplate {
@@ -62,6 +76,7 @@ class CompilableTemplate {
     var buffer = new StringBuffer();
     if (libraryStatement != null) {
       buffer.writeln(libraryStatement);
+      buffer.writeln();
     }
     for (var importStmt in importStatements) {
       buffer.writeln(importStmt);
@@ -99,14 +114,13 @@ class CompilableTemplate {
   }
 
   _write(StringBuffer buffer, _IndentCompilableElement indentElement) {
-    _writeIndentLevel(buffer, indentElement.indentLevel);
-    var item = indentElement.element;
-    if (item.type == CompilableElementType.FUNCTION_BODY_TEXT) {
-      _writeText(buffer, item.content);
-    } else if (item.type == CompilableElementType.FUNCTION_BODY_EXPRESSION) {
-      _writeExpression(buffer, item.content);
-    } else if (item.type == CompilableElementType.FUNCTION_BODY_STATEMENT) {
-      _writeStatement(buffer, item.content);
+    var type = indentElement.element.type;
+    if (type == CompilableElementType.FUNCTION_BODY_TEXT) {
+      _writeText(buffer, indentElement);
+    } else if (type == CompilableElementType.FUNCTION_BODY_EXPRESSION) {
+      _writeExpression(buffer, indentElement);
+    } else if (type == CompilableElementType.FUNCTION_BODY_STATEMENT) {
+      _writeStatement(buffer, indentElement);
     }
   }
 
@@ -116,15 +130,27 @@ class CompilableTemplate {
     }
   }
 
-  _writeText(StringBuffer buffer, String text) {
-    buffer.writeln("sb.write('$text');");
+  _writeText(StringBuffer buffer, _IndentCompilableElement indentElement) {
+    var text = indentElement.element.content;
+    if (text.contains('\n')) {
+      var lines = text.split('\n');
+      for (var line in lines) {
+        _writeIndentLevel(buffer, indentElement.indentLevel);
+        buffer.writeln("sb.writeln('$line');");
+      }
+    } else {
+      _writeIndentLevel(buffer, indentElement.indentLevel);
+      buffer.writeln("sb.write('$text');");
+    }
   }
 
   _writeStatement(StringBuffer buffer, String statement) {
+    _writeIndentLevel(buffer, indentElement.indentLevel);
     buffer.writeln(statement);
   }
 
   _writeExpression(StringBuffer buffer, String expression) {
+    _writeIndentLevel(buffer, indentElement.indentLevel);
     buffer.writeln('sb.write($expression)');
   }
 

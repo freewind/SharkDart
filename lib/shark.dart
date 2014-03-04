@@ -1,6 +1,8 @@
 library shark;
 
 import "dart:io";
+import "dart:async";
+import "package:path/path.dart" as path;
 import "package:petitparser/petitparser.dart";
 
 part "src/parser.dart";
@@ -14,6 +16,8 @@ var tagRepository = new TagRepository();
 SharkDocument parse(String input) => new SharkParser().parse(input).value;
 
 String compile(String input) => new Compiler().compileTemplateString(input);
+
+Future<String> compileTemplateFile(Directory root, String relativeFilePath) => new Compiler().compileTemplateFile(root, relativeFilePath);
 
 CompilableElement libraryStmt(String input) => new CompilableElement(CompilableElementType.LIBRARY, input);
 

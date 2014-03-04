@@ -1,7 +1,10 @@
 library shark_tests;
 
+import "dart:io";
+import "dart:async";
 import "package:unittest/unittest.dart";
 import "package:petitparser/petitparser.dart";
+import "package:path/path.dart" as path;
 import "../lib/shark.dart";
 
 part "test_parser.dart";

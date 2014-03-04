@@ -17,12 +17,7 @@ class SharkDocument extends SharkNode {
 
   SharkDocument(List children) {
     this.children = children;
-    _validateAndFix();
     _addTailsForTopLevelTags();
-  }
-
-  _validateAndFix() {
-
   }
 
   _addTailsForTopLevelTags() {
