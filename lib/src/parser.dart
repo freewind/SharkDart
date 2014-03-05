@@ -86,7 +86,7 @@ class SharkParser extends CompositeParser {
       return new SharkExpression(expr);
     });
     action('codeParam', (each) {
-      return [new SharkExpression(each)];
+      return [new TagParam(null, each, null)];
     });
   }
 

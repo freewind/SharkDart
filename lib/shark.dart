@@ -35,4 +35,5 @@ CompilableElement text(String input) => new CompilableElement(CompilableElementT
 
 initializeBuiltInTags() {
   tagRepository.register('params', new ParamsTagHandler());
+  tagRepository.register('if', new IfTagHandler());
 }

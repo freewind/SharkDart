@@ -29,7 +29,7 @@ class IfTagHandler extends TagHandler {
   TagHandleResult handle(SharkTag tag, List nodesAfterTag) {
     var condition = tag.tagParams.first.paramVariable;
     return new TagHandleResult([
-      stmt('if($condition) {'),
+      stmt('if ($condition) {'),
       toCompilable(tag.body),
       stmt('}')
     ], nodesAfterTag);

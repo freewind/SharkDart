@@ -42,7 +42,7 @@ test_parser() {
       successParse('@!code (user)', 'SharkTag(code, (user), <null>)');
     });
     test('code param', () {
-      successParse('@!if(a==b) {}', 'SharkTag(if, (SharkExpression(a==b)), {})');
+      successParse('@!if(a==b) {}', 'SharkTag(if, (a==b), {})');
     });
   });
   group('@tag', () {
@@ -69,7 +69,7 @@ test_parser() {
       successParse('@mytag (user)', 'SharkTag(mytag, (user), <null>)');
     });
     test('code param', () {
-      successParse('@if(a==b) {}', 'SharkTag(if, (SharkExpression(a==b)), {})');
+      successParse('@if(a==b) {}', 'SharkTag(if, (a==b), {})');
     });
   });
   group('document', () {
