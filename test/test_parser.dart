@@ -18,11 +18,13 @@ test_parser() {
   });
   group('@!code', () {
     test('no params', () {
-      successParse('@!code { var a=1; }', 'SharkTag(code, (), { var a=1; })');
-      successParse('@!code {{ @var @@ }}', 'SharkTag(code, (), { @var @@ })');
+      successParse('@!code { var a=1; }', 'SharkTag(code, <null>, { var a=1; })');
+      successParse('@!code {{ @var @@ }}', 'SharkTag(code, <null>, { @var @@ })');
     });
-    test('has params', () {
+    test('has empty param', () {
       successParse('@!code () {{ @var @@ }}', 'SharkTag(code, (), { @var @@ })');
+    });
+    test('has non-empty param', () {
       successParse('@!code (abc) {{ @var @@ }}', 'SharkTag(code, (abc), { @var @@ })');
       successParse('@!code (bool abc) {{ @var @@ }}', 'SharkTag(code, (bool abc), { @var @@ })');
       successParse('@!code (bool abc : xyz) {{ @var @@ }}', 'SharkTag(code, (bool abc: xyz), { @var @@ })');
@@ -37,7 +39,7 @@ test_parser() {
       successParse(r"@!code (users: {@@}) {{ @var @@ }}", r"SharkTag(code, (users: @), { @var @@ })");
     });
     test('no block', () {
-      successParse('@!code (user)', 'SharkTag(code, (user), {})');
+      successParse('@!code (user)', 'SharkTag(code, (user), <null>)');
     });
     test('code param', () {
       successParse('@!if(a==b) {}', 'SharkTag(if, (SharkExpression(a==b)), {})');
@@ -45,8 +47,8 @@ test_parser() {
   });
   group('@tag', () {
     test('no params', () {
-      successParse('@mytag { var a=1; }', 'SharkTag(mytag, (), { var a=1; })');
-      successParse('@mytag {{ @var @@ }}', 'SharkTag(mytag, (), { SharkExpression(var) @ })');
+      successParse('@mytag { var a=1; }', 'SharkTag(mytag, <null>, { var a=1; })');
+      successParse('@mytag {{ @var @@ }}', 'SharkTag(mytag, <null>, { SharkExpression(var) @ })');
     });
     test('has params', () {
       successParse('@mytag () {{ @var @@ }}', 'SharkTag(mytag, (), { SharkExpression(var) @ })');
@@ -64,7 +66,7 @@ test_parser() {
       successParse(r"@mytag (users: {@@}) {{ @var @@ }}", r"SharkTag(mytag, (users: @), { SharkExpression(var) @ })");
     });
     test('no block', () {
-      successParse('@mytag (user)', 'SharkTag(mytag, (user), {})');
+      successParse('@mytag (user)', 'SharkTag(mytag, (user), <null>)');
     });
     test('code param', () {
       successParse('@if(a==b) {}', 'SharkTag(if, (SharkExpression(a==b)), {})');
@@ -72,21 +74,11 @@ test_parser() {
   });
   group('document', () {
     test('all', () {
-      successParse('aaa @bbb(ccc){@@} @ddd @@ eee @!fff{@@} ggg', 'aaa SharkTag(bbb, (ccc), {@}) SharkExpression(ddd) @ eee SharkTag(fff, (), {@@}) ggg');
+      successParse('aaa @bbb(ccc){@@} @ddd @@ eee @!fff{@@} ggg', 'aaa SharkTag(bbb, (ccc), {@}) SharkExpression(ddd) @ eee SharkTag(fff, <null>, {@@}) ggg');
     });
     test('nested', () {
       successParse('@aaa { @bbb { @user } ccc @!ddd { @@ } } eee',
-      'SharkTag(aaa, (), { SharkTag(bbb, (), { SharkExpression(user) }) ccc SharkTag(ddd, (), { @@ }) }) eee');
-    });
-    test('top level tags will have tails', () {
-      var document = parse('@aaa { @bbb {} ccc @ddd {} } eee');
-      var aaa = document.children[0];
-      expect(aaa.tail, [' eee']);
-    });
-    test('non-top level tags will not have tails', () {
-      var document = parse('@aaa { @bbb {} ccc }');
-      var bbb = document.children[0].body[1];
-      expect(bbb.tail, null);
+      'SharkTag(aaa, <null>, { SharkTag(bbb, <null>, { SharkExpression(user) }) ccc SharkTag(ddd, <null>, { @@ }) }) eee');
     });
   });
 }

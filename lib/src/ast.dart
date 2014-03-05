@@ -17,17 +17,6 @@ class SharkDocument extends SharkNode {
 
   SharkDocument(List children) {
     this.children = children;
-    _addTailsForTopLevelTags();
-  }
-
-  _addTailsForTopLevelTags() {
-    for (var i = 0; i < children.length; i++) {
-      var node = children[i];
-      if (node is SharkTag) {
-        var tag = node as SharkTag;
-        tag.tail = children.sublist(i + 1);
-      }
-    }
   }
 
   @override
@@ -43,28 +32,41 @@ class SharkTag extends SharkNode {
   String tagName;
   List<TagParam> tagParams;
   dynamic body;
-  List tail;
 
   SharkTag(this.tagName, this.tagParams, this.body);
 
   void toString0(StringBuffer buffer) {
     buffer.write('$runtimeType');
     buffer.write('($tagName, ');
-    buffer.write("(");
-    if (tagParams != null) {
-      var first = true;
-      for (var param in tagParams) {
-        if (!first) buffer.write(', ');
-        _write(buffer, param);
-        first = false;
+
+    if (hasNoParams) {
+      buffer.write('<null>, ');
+    } else {
+      buffer.write("(");
+      if (tagParams != null) {
+        var first = true;
+        for (var param in tagParams) {
+          if (!first) buffer.write(', ');
+          _write(buffer, param);
+          first = false;
+        }
       }
+      buffer.write("), ");
     }
-    buffer.write("), ");
-    buffer.write('{');
-    _write(buffer, body);
-    buffer.write('}');
+
+    if (hasNoBody) {
+      buffer.write('<null>');
+    } else {
+      buffer.write('{');
+      _write(buffer, body);
+      buffer.write('}');
+    }
     buffer.write(')');
   }
+
+  bool get hasNoParams => tagParams == null;
+
+  bool get hasNoBody => body == null;
 
 }
 

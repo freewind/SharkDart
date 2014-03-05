@@ -18,7 +18,7 @@ class SharkParser extends CompositeParser {
     def('tagName', pattern(r'a-zA-Z_$').plus().flatten());
     def('tagParams', ref('multiParamArray') | ref('codeParam'));
     def('multiParamArray', (
-      char('(') & ref('tagParam').separatedBy(char(','), includeSeparators:false).optional() & char(')')
+      char('(') & ref('tagParam').separatedBy(char(','), includeSeparators:false).optional([]) & char(')')
     ).pick(1));
 
     def('tagParam', (
@@ -101,7 +101,7 @@ class SharkParser extends CompositeParser {
   Parser _block(Parser startMarkParser, Parser blockParser) {
     return startMarkParser & ref('tagName') & (
       (ref('tagParams').trim() & blockParser.optional())
-      | (whitespace().star().trim() & blockParser)
+      | (whitespace().star().trim().map((_) => null) & blockParser)
     );
   }
 

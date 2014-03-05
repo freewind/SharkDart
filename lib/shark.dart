@@ -13,6 +13,8 @@ part "src/compiler.dart";
 
 var tagRepository = new TagRepository();
 
+var _builtInTags = initializeBuiltInTags();
+
 SharkDocument parse(String input) => new SharkParser().parse(input).value;
 
 String compile(String input) => new Compiler().compileTemplateString(input);
@@ -31,3 +33,6 @@ CompilableElement expr(String input) => new CompilableElement(CompilableElementT
 
 CompilableElement text(String input) => new CompilableElement(CompilableElementType.FUNCTION_BODY_TEXT, input);
 
+initializeBuiltInTags() {
+  tagRepository.register('params', new ParamsTagHandler());
+}

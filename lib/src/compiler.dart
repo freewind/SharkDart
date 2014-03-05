@@ -16,22 +16,42 @@ class CompilableElement {
   CompilableElement(this.type, this.content);
 }
 
-dynamic toCompilable(sharkNode) {
-  if (sharkNode is SharkDocument) {
-    return (sharkNode as SharkDocument).children.map((node) => toCompilable(node));
-  } else if (sharkNode is SharkTag) {
-    var tag = (sharkNode as SharkTag);
-    var tagHandler = tagRepository.find(tag.tagName);
-    if (tagHandler == null) {
-      throw 'No tag handler found for tag: ${tag.tagName}';
-    }
-    return tagHandler.handle(tag);
-  } else if (sharkNode is SharkExpression) {
-    var sharkExpr = sharkNode as SharkExpression;
-    return expr(sharkExpr.expression) ;
+dynamic toCompilable(dynamic sharkNode) {
+  if (sharkNode is SharkExpression) {
+    return expr(sharkNode.expression) ;
   } else if (sharkNode is String) {
     return text(sharkNode);
+  } else if (sharkNode is SharkDocument) {
+    return toCompilable(sharkNode.children);
+  } else if (sharkNode is SharkTag) {
+    return toCompilable([sharkNode]).first;
+  } else if (sharkNode is List) {
+    var result = [];
+    var list = sharkNode as List;
+    while (list.isNotEmpty) {
+      var first = list.removeAt(0);
+      if (first is SharkTag) {
+        var tag = (first as SharkTag);
+        var tagHandler = tagRepository.find(tag.tagName);
+        if (tagHandler == null) {
+          throw 'No tag handler found for tag: ${tag.tagName}';
+        }
+        var tagHandleResult = tagHandler.handle(tag, list);
+        result.add(tagHandleResult.elements);
+        if (tagHandleResult.tail.isNotEmpty) {
+          result.add(toCompilable(tagHandleResult.tail));
+        }
+        break;
+      } else {
+        result.add(toCompilable(first));
+      }
+    }
+    return result;
   }
+}
+
+TagHandleResult _tagToCompilable(SharkTag tag, List nodesAfterTag) {
+
 }
 
 class Compiler {
@@ -81,7 +101,11 @@ class CompilableTemplate {
     for (var importStmt in importStatements) {
       buffer.writeln(importStmt);
     }
-    buffer.writeln('String render() {');
+    if (params == null) {
+      buffer.writeln('String render() {');
+    } else {
+      buffer.writeln('String render($params) {');
+    }
     buffer.writeln('  var sb = new StringBuffer();');
     for (var item in functionBody) {
       _write(buffer, item);
@@ -134,24 +158,27 @@ class CompilableTemplate {
     var text = indentElement.element.content;
     if (text.contains('\n')) {
       var lines = text.split('\n');
+      var lastLine = lines.removeLast();
       for (var line in lines) {
         _writeIndentLevel(buffer, indentElement.indentLevel);
         buffer.writeln("sb.writeln('$line');");
       }
+      buffer.writeln("sb.write('$lastLine');");
     } else {
       _writeIndentLevel(buffer, indentElement.indentLevel);
       buffer.writeln("sb.write('$text');");
     }
   }
 
-  _writeStatement(StringBuffer buffer, String statement) {
+  _writeStatement(StringBuffer buffer, _IndentCompilableElement indentElement) {
     _writeIndentLevel(buffer, indentElement.indentLevel);
-    buffer.writeln(statement);
+    buffer.writeln(indentElement.element.content);
   }
 
-  _writeExpression(StringBuffer buffer, String expression) {
+  _writeExpression(StringBuffer buffer, _IndentCompilableElement indentElement) {
+    var expression = indentElement.element.content;
     _writeIndentLevel(buffer, indentElement.indentLevel);
-    buffer.writeln('sb.write($expression)');
+    buffer.writeln('sb.write($expression);');
   }
 
   _indentSpaces(StringBuffer buffer, int indentLevel) {

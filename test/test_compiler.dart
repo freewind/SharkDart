@@ -50,6 +50,7 @@ testCompileFiles() {
     final compiledRoot = new Directory(path.join(path.current, "compiled"));
 
     templateRoot.listSync(recursive:true, followLinks:false).where((file) => file is File).forEach((file) {
+      setUp(initializeBuiltInTags);
       test(file.path, () {
         var callback = expectAsync0(() {
         });
@@ -57,10 +58,16 @@ testCompileFiles() {
         var compiledFile = new File(path.join(compiledRoot.path, relativePath.replaceAll(path.extension(relativePath), ".dart")));
         compileTemplateFile(templateRoot, relativePath).then((dart) {
           var expectedDart = compiledFile.readAsStringSync();
-          expect(dart, expectedDart);
+          expectSameContent(dart, expectedDart);
           callback();
         });
       });
     });
   });
+}
+
+expectSameContent(String actual, String expected) {
+  var lines1 = actual.split('\n').map((line) => line.trim());
+  var lines2 = expected.split('\n').map((line) => line.trim());
+  expect(lines1, orderedEquals(lines2));
 }
