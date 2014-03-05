@@ -37,4 +37,5 @@ initializeBuiltInTags() {
   tagRepository.register('params', new ParamsTagHandler());
   tagRepository.register('if', new IfTagHandler());
   tagRepository.register('else', new ElseTagHandler());
+  tagRepository.register('elseif', new ElseIfTagHandler());
 }

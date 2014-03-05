@@ -39,7 +39,18 @@ class IfTagHandler extends TagHandler {
 class ElseTagHandler extends TagHandler {
   TagHandleResult handle(SharkTag tag, List nodesAfterTag) {
     return new TagHandleResult([
-      stmt('else {'),
+      stmt(' else {'),
+      toCompilable(tag.body),
+      stmt('}')
+    ], nodesAfterTag);
+  }
+}
+
+class ElseIfTagHandler extends TagHandler {
+  TagHandleResult handle(SharkTag tag, List nodesAfterTag) {
+    var condition = tag.tagParams.first.paramVariable;
+    return new TagHandleResult([
+      stmt(' else if ($condition) {'),
       toCompilable(tag.body),
       stmt('}')
     ], nodesAfterTag);
