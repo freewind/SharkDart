@@ -36,6 +36,16 @@ class IfTagHandler extends TagHandler {
   }
 }
 
+class ElseTagHandler extends TagHandler {
+  TagHandleResult handle(SharkTag tag, List nodesAfterTag) {
+    return new TagHandleResult([
+      stmt('else {'),
+      toCompilable(tag.body),
+      stmt('}')
+    ], nodesAfterTag);
+  }
+}
+
 class ParamsTagHandler extends TagHandler {
   TagHandleResult handle(SharkTag tag, List nodesAfterTag) {
     var params = "";

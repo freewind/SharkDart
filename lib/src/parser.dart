@@ -9,7 +9,13 @@ class SharkParser extends CompositeParser {
   }
 
   grammar() {
-    def('start', (ref('atAt') | ref('sharkTag') | ref('sharkPlainTextTag') | ref('sharkExpression') | any()).star());
+    def('start', (
+      ref('atAt')
+      | ref('sharkTag').separatedBy(whitespace().star(), includeSeparators:false)
+      | ref('sharkPlainTextTag')
+      | ref('sharkExpression')
+      | any()
+    ).star());
 
     def('atAt', string('@@'));
     def('sharkTag', _block(char('@'), ref('normalBlock')));
