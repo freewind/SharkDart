@@ -5,6 +5,10 @@ registerBuiltInTags() {
     ..register('if', new IfTagHandler());
 }
 
+int idForTags = 0;
+
+nextId() => idForTags++;
+
 class TagRepository {
   var store = new Map<String, TagHandler>();
 
@@ -39,7 +43,7 @@ class IfTagHandler extends TagHandler {
 class ElseTagHandler extends TagHandler {
   TagHandleResult handle(SharkTag tag, List nodesAfterTag) {
     return new TagHandleResult([
-      stmt(' else {'),
+      stmt('else {'),
       toCompilable(tag.body),
       stmt('}')
     ], nodesAfterTag);
@@ -50,8 +54,35 @@ class ElseIfTagHandler extends TagHandler {
   TagHandleResult handle(SharkTag tag, List nodesAfterTag) {
     var condition = tag.tagParams.first.paramVariable;
     return new TagHandleResult([
-      stmt(' else if ($condition) {'),
+      stmt('else if ($condition) {'),
       toCompilable(tag.body),
+      stmt('}')
+    ], nodesAfterTag);
+  }
+}
+
+class ForTagHandler extends TagHandler {
+  TagHandleResult handle(SharkTag tag, List nodesAfterTag) {
+    var main = tag.tagParams.first;
+    var type = (main.paramType == null ? 'var' : main.paramType);
+    var variable = main.paramVariable;
+    var collections = main.paramDescription;
+    var indexVar = 'index_${nextId()}';
+    var countVar = 'total_${nextId()}';
+    return new TagHandleResult([
+      stmt('int ${indexVar} = 0;'),
+      stmt('if ($collections != null) {'),
+      stmt('  int ${indexVar} = 0;'),
+      stmt('  int ${countVar} = ${collections.length};'),
+      stmt('  for (var $variable in $collections) {'),
+      stmt('    int ${variable}_index = ${indexVar};'),
+      stmt('    bool ${variable}_isFirst = ${indexVar} == 0;'),
+      stmt('    bool ${variable}_isLast = ${indexVar} == ${countVar};'),
+      stmt('    bool ${variable}_isOdd = ${indexVar} % 2 == 1;'),
+      stmt('    bool ${variable}_isEven = ${indexVar} % 2 == 0;'),
+      stmt('    ${indexVar}++;'),
+      toCompilable(tag.body),
+      stmt('  }'),
       stmt('}')
     ], nodesAfterTag);
   }

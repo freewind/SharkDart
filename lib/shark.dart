@@ -38,4 +38,5 @@ initializeBuiltInTags() {
   tagRepository.register('if', new IfTagHandler());
   tagRepository.register('else', new ElseTagHandler());
   tagRepository.register('elseif', new ElseIfTagHandler());
+  tagRepository.register('for', new ForTagHandler());
 }
