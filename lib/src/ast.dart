@@ -68,6 +68,16 @@ class SharkTag extends SharkNode {
 
   bool get hasNoBody => body == null;
 
+  String getParam(String paramKey) {
+    if (tagParams == null) {
+      return null;
+    }
+    var found = tagParams.firstWhere((param) => param.paramVariable == paramKey);
+    if (found == null) {
+      return null;
+    }
+    return found.paramDescription;
+  }
 }
 
 class TagParam extends SharkNode {

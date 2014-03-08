@@ -179,3 +179,13 @@ class RenderBodyTagHandler extends TagHandler {
     ], nodesAfterTag);
   }
 }
+
+class DartTagHandler extends TagHandler {
+  TagHandleResult handle(SharkTag tag, List nodesAfterTag) {
+    var trimValue = tag.getParam('trim');
+    var content = (trimValue == 'true' ? tag.body.first.trim() : tag.body.first);
+    return new TagHandleResult([
+      stmt(content),
+    ], nodesAfterTag);
+  }
+}

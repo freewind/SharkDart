@@ -46,4 +46,5 @@ initializeBuiltInTags() {
   tagRepository.register('for', new ForTagHandler());
   tagRepository.register('extends', new ExtendsTagHandler());
   tagRepository.register('renderBody', new RenderBodyTagHandler());
+  tagRepository.register('dart', new DartTagHandler());
 }

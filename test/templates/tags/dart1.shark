@@ -1,0 +1,3 @@
+@!dart {{{
+  hello() => print('Hello, world!');
+}}}
