@@ -1,8 +1,10 @@
 library shark.views.tags.for1;
 
-String render() {
-  var sb = new StringBuffer();
-  int index_0 = 0;
+String render({String _body_()}) {
+  if (_body_ == null) {
+    _body_ = () => '';
+  }
+  var _sb_ = new StringBuffer();
   if (users != null) {
     int index_0 = 0;
     int total_1 = 5;
@@ -13,14 +15,14 @@ String render() {
       bool user_isOdd = index_0 % 2 == 1;
       bool user_isEven = index_0 % 2 == 0;
       index_0++;
-      sb.writeln('');
-      sb.write('  Hello, ');
-      sb.write(user);
-      sb.writeln('');
-      sb.write('');
+      _sb_.writeln('');
+      _sb_.write('  Hello, ');
+      _sb_.write(user);
+      _sb_.writeln('');
+      _sb_.write('');
     }
   }
-  sb.writeln('');
-  sb.write('');
-  return sb.toString();
+  _sb_.writeln('');
+  _sb_.write('');
+  return _sb_.toString();
 }

@@ -1,15 +1,18 @@
 library shark.views.tags.if1;
 
-String render() {
-  var sb = new StringBuffer();
-  sb.writeln('Hello,');
-  sb.write('');
-  if (1 == 2) {
-    sb.writeln('');
-    sb.writeln('  world!');
-    sb.write('');
+String render({String _body_()}) {
+  if (_body_ == null) {
+    _body_ = () => '';
   }
-  sb.writeln('');
-  sb.write('');
-  return sb.toString();
+  var _sb_ = new StringBuffer();
+  _sb_.writeln('Hello,');
+  _sb_.write('');
+  if (1 == 2) {
+    _sb_.writeln('');
+    _sb_.writeln('  world!');
+    _sb_.write('');
+  }
+  _sb_.writeln('');
+  _sb_.write('');
+  return _sb_.toString();
 }

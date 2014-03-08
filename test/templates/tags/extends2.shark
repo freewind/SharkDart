@@ -1,0 +1,4 @@
+@extends(tags/layout1, user: user)
+@params(String user)
+
+This is inner page!

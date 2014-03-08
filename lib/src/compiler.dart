@@ -7,13 +7,20 @@ class CompilableElementType {
   static final FUNCTION_BODY_TEXT = new CompilableElementType();
   static final FUNCTION_BODY_STATEMENT = new CompilableElementType();
   static final FUNCTION_BODY_EXPRESSION = new CompilableElementType();
+  static final FUNCTION_RETURN = new CompilableElementType();
 }
+
+typedef String FromTemplate(CompilableTemplate);
 
 class CompilableElement {
   CompilableElementType type;
   String content;
 
+  FromTemplate func;
+
   CompilableElement(this.type, this.content);
+
+  CompilableElement.fromTemplate(this.type, this.func);
 }
 
 dynamic toCompilable(dynamic sharkNode) {
@@ -50,17 +57,13 @@ dynamic toCompilable(dynamic sharkNode) {
   }
 }
 
-TagHandleResult _tagToCompilable(SharkTag tag, List nodesAfterTag) {
-
-}
-
 class Compiler {
 
   Future<String> compileTemplateFile(Directory root, String relativeFilePath) {
     var file = new File(path.join(root.path, relativeFilePath));
     return file.readAsString().then((template) {
       var document = parse(template);
-      var compilableTemplate = new CompilableTemplate(document);
+      var compilableTemplate = new CompilableTemplate(document, root, relativeFilePath);
 
       var libraryName = _getLibrary(relativeFilePath);
       compilableTemplate.libraryStatement = "library shark.views.${libraryName};";
@@ -83,12 +86,19 @@ class Compiler {
 }
 
 class CompilableTemplate {
+  Directory templateRootDir;
+  final String relativePath;
   String libraryStatement;
   List<String> importStatements = [];
   String params;
+  static const defaultBodyParam = "String _body_()";
   List<_IndentCompilableElement> functionBody = [];
+  String returnStatement = "  return _sb_.toString();";
 
-  CompilableTemplate(SharkDocument doc) {
+  CompilableTemplate(SharkDocument doc, [this.templateRootDir, this.relativePath]) {
+    if (this.templateRootDir == null) {
+      this.templateRootDir = new Directory(path.current);
+    }
     _categoryWalk(toCompilable(doc), 0);
   }
 
@@ -98,19 +108,27 @@ class CompilableTemplate {
       buffer.writeln(libraryStatement);
       buffer.writeln();
     }
-    for (var importStmt in importStatements) {
-      buffer.writeln(importStmt);
+
+    if (importStatements.isNotEmpty) {
+      for (var importStmt in importStatements) {
+        buffer.writeln(importStmt);
+      }
+      buffer.writeln();
     }
+
     if (params == null) {
-      buffer.writeln('String render() {');
+      buffer.writeln('String render({$defaultBodyParam}) {');
     } else {
-      buffer.writeln('String render($params) {');
+      buffer.writeln('String render({$params, $defaultBodyParam}) {');
     }
-    buffer.writeln('  var sb = new StringBuffer();');
+    buffer.writeln('  if (_body_ == null) {');
+    buffer.writeln('     _body_ = () => \'\';');
+    buffer.writeln('  }');
+    buffer.writeln('  var _sb_ = new StringBuffer();');
     for (var item in functionBody) {
       _write(buffer, item);
     }
-    buffer.writeln('  return sb.toString();');
+    buffer.writeln(returnStatement);
     buffer.writeln('}');
     return buffer.toString();
   }
@@ -129,9 +147,15 @@ class CompilableTemplate {
     if (item.type == CompilableElementType.LIBRARY) {
       this.libraryStatement = item.content;
     } else if (item.type == CompilableElementType.IMPORT) {
-      this.importStatements.add(item.content);
+      if (item.content != null) {
+        this.importStatements.add(item.content);
+      } else {
+        this.importStatements.add(item.func(this));
+      }
     } else if (item.type == CompilableElementType.FUNCTION_PARAM) {
       this.params = item.content;
+    } else if (item.type == CompilableElementType.FUNCTION_RETURN) {
+      this.returnStatement = item.content;
     } else {
       this.functionBody.add(new _IndentCompilableElement(indentLevel, item));
     }
@@ -161,12 +185,12 @@ class CompilableTemplate {
       var lastLine = lines.removeLast();
       for (var line in lines) {
         _writeIndentLevel(buffer, indentElement.indentLevel);
-        buffer.writeln("sb.writeln('$line');");
+        buffer.writeln("_sb_.writeln('$line');");
       }
-      buffer.writeln("sb.write('$lastLine');");
+      buffer.writeln("_sb_.write('$lastLine');");
     } else {
       _writeIndentLevel(buffer, indentElement.indentLevel);
-      buffer.writeln("sb.write('$text');");
+      buffer.writeln("_sb_.write('$text');");
     }
   }
 
@@ -178,7 +202,7 @@ class CompilableTemplate {
   _writeExpression(StringBuffer buffer, _IndentCompilableElement indentElement) {
     var expression = indentElement.element.content;
     _writeIndentLevel(buffer, indentElement.indentLevel);
-    buffer.writeln('sb.write($expression);');
+    buffer.writeln('_sb_.write($expression);');
   }
 
   _indentSpaces(StringBuffer buffer, int indentLevel) {

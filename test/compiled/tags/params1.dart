@@ -1,13 +1,16 @@
 library shark.views.tags.params1;
 
-String render({String user}) {
-  var sb = new StringBuffer();
-  sb.writeln('');
-  sb.write('  <div>hello, ');
-  sb.write(user);
-  sb.writeln('</div>');
-  sb.write('');
-  sb.writeln('');
-  sb.write('');
-  return sb.toString();
+String render({String user, String _body_()}) {
+  if (_body_ == null) {
+    _body_ = () => '';
+  }
+  var _sb_ = new StringBuffer();
+  _sb_.writeln('');
+  _sb_.write('  <div>hello, ');
+  _sb_.write(user);
+  _sb_.writeln('</div>');
+  _sb_.write('');
+  _sb_.writeln('');
+  _sb_.write('');
+  return _sb_.toString();
 }

@@ -29,13 +29,13 @@ class SharkParser extends CompositeParser {
 
     def('tagParam', (
       (
-        (ref('paramType').trim() & ref('paramVariable').trim() )
+        (ref('paramType').seq(whitespace().and()).flatten().trim() & ref('paramVariable').trim() )
         | (epsilon() & ref('paramVariable').trim())
       )
       & (char(':') & ref('paramDescription').trim()).optional()
     ));
     def('paramType', pattern(r'a-zA-Z_$<>').plus().flatten());
-    def('paramVariable', pattern(r'a-zA-Z_$').plus().flatten());
+    def('paramVariable', pattern(r'0-9a-zA-Z_$./').plus().flatten());
     def('paramDescription', ref('expressionVariable') | ref('number') | ref('singleString') | ref('doubleString') | ref('normalBlock'));
 
     def('number', (digit() | char('.')).plus().flatten());

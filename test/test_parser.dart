@@ -65,6 +65,9 @@ test_parser() {
       successParse(r"@mytag (users: 'a\'b\'c') {{ @var @@ }}", r"SharkTag(mytag, (users: 'a\'b\'c'), { SharkExpression(var) @ })");
       successParse(r"@mytag (users: {@@}) {{ @var @@ }}", r"SharkTag(mytag, (users: @), { SharkExpression(var) @ })");
     });
+    test('path-like param variable', () {
+      successParse(r"@mytag(./layout1,   user:user) {}", r"SharkTag(mytag, (./layout1, user: user), {})");
+    });
     test('no block', () {
       successParse('@mytag (user)', 'SharkTag(mytag, (user), <null>)');
     });

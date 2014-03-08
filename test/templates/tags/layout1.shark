@@ -1,0 +1,4 @@
+@params(String user)
+
+<div>Hello, @user</div>
+<div>@renderBody()</div>
