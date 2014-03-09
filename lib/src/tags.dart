@@ -34,7 +34,7 @@ class IfTagHandler extends TagHandler {
     var condition = tag.tagParams.first.paramVariable;
     return new TagHandleResult([
       stmt('if ($condition) {'),
-      toCompilable(tag.body),
+      tag.body.toCompilable(),
       stmt('}')
     ], nodesAfterTag);
   }
@@ -44,7 +44,7 @@ class ElseTagHandler extends TagHandler {
   TagHandleResult handle(SharkTag tag, List nodesAfterTag) {
     return new TagHandleResult([
       stmt('else {'),
-      toCompilable(tag.body),
+      tag.body.toCompilable(),
       stmt('}')
     ], nodesAfterTag);
   }
@@ -55,7 +55,7 @@ class ElseIfTagHandler extends TagHandler {
     var condition = tag.tagParams.first.paramVariable;
     return new TagHandleResult([
       stmt('else if ($condition) {'),
-      toCompilable(tag.body),
+      tag.body.toCompilable(),
       stmt('}')
     ], nodesAfterTag);
   }
@@ -66,7 +66,7 @@ class ForTagHandler extends TagHandler {
     var main = tag.tagParams.first;
     var type = (main.paramType == null ? 'var' : main.paramType);
     var variable = main.paramVariable;
-    var collections = main.paramDescription;
+    var collections = (main.paramDescription as SharkExpression).expression;
     var indexVar = 'index_${nextId()}';
     var countVar = 'total_${nextId()}';
     return new TagHandleResult([
@@ -80,7 +80,7 @@ class ForTagHandler extends TagHandler {
       stmt('    bool ${variable}_isOdd = ${indexVar} % 2 == 1;'),
       stmt('    bool ${variable}_isEven = ${indexVar} % 2 == 0;'),
       stmt('    ${indexVar}++;'),
-      toCompilable(tag.body),
+      tag.body.toCompilable(),
       stmt('  }'),
       stmt('}')
     ], nodesAfterTag);
@@ -96,12 +96,12 @@ class ParamsTagHandler extends TagHandler {
     if (tag.hasNoBody) {
       return new TagHandleResult([
         functionParams(params),
-        toCompilable(nodesAfterTag),
+        new SharkNodeList(nodesAfterTag).toCompilable(),
       ], []);
     } else {
       return new TagHandleResult([
         functionParams(params),
-        toCompilable(tag.body),
+        tag.body.toCompilable(),
       ], nodesAfterTag);
     }
   }
@@ -119,21 +119,24 @@ class ExtendsTagHandler extends TagHandler {
     List<_ParamForExtendsTag> params = tag.tagParams.sublist(1).map((param) => new _ParamForExtendsTag(
       param.paramVariable,
       "${param.paramVariable}_${nextId()}",
-      toCompilable(param.paramDescription)
+      param.paramDescription.toCompilable()
     )).toList();
 
     params.forEach((p) {
-      compilables.add(stmt('var ${p.paramGeneratedVariable} = '));
+      compilables.add(stmt('var ${p.paramGeneratedVariable} = () {'));
+      compilables.add(stmt('var _sb_ = new StringBuffer();'));
       compilables.add(p.paramValue);
+      compilables.add(stmt('return _sb_.toString();'));
+      compilables.add(stmt('}();'));
     });
 
     var paramStr = params.map((p) => "${p.paramName}: ${p.paramGeneratedVariable}").join(', ');
     compilables.add(stmt('_sb_.write(${layoutVar}.render($paramStr, _body_ : () {'));
     compilables.add(stmt('var _sb_ = new StringBuffer();'));
     if (tag.hasNoBody) {
-      compilables.add(toCompilable(nodesAfterTag));
+      compilables.add(new SharkNodeList(nodesAfterTag).toCompilable());
     } else {
-      compilables.add(toCompilable(tag.body));
+      compilables.add(tag.body.toCompilable());
     }
     compilables.add(stmt('return _sb_.toString();'));
     compilables.add(stmt('}));'));
@@ -184,8 +187,14 @@ class RenderBodyTagHandler extends TagHandler {
 
 class DartTagHandler extends TagHandler {
   TagHandleResult handle(SharkTag tag, List nodesAfterTag) {
-    var trimValue = tag.getParam('trim');
-    var content = (trimValue == 'true' ? tag.body.first.trim() : tag.body.first);
+    var content = '';
+    if (!tag.body.isEmpty) {
+      var trim = tag.getParamAsBool('trim');
+      if (trim) {
+        tag.body.trim();
+      }
+      content = tag.body.elements.elements.first.toString();
+    }
     return new TagHandleResult([
       stmt(content),
     ], nodesAfterTag);
@@ -197,3 +206,4 @@ class RenderTagHandler extends TagHandler {
 
   }
 }
+

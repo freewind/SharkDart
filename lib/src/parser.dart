@@ -36,7 +36,9 @@ class SharkParser extends CompositeParser {
     ));
     def('paramType', pattern(r'a-zA-Z_$<>').plus().flatten());
     def('paramVariable', pattern(r'0-9a-zA-Z_$./').plus().flatten());
-    def('paramDescription', ref('expressionVariable') | ref('number') | ref('singleString') | ref('doubleString') | ref('normalBlock'));
+    def('paramDescription', ref('variableExpression') | ref('numberExpression') | ref('singleString') | ref('doubleString') | ref('normalBlock'));
+    def('variableExpression', ref('variable'));
+    def('numberExpression', ref('number'));
 
     def('number', (digit() | char('.')).plus().flatten());
     def('singleString', _sharkString("'").flatten());
@@ -57,8 +59,8 @@ class SharkParser extends CompositeParser {
     def('plainTextBlock', new BlockParser());
 
     def('sharkExpression', ref('simpleExpression') | ref('complexExpression'));
-    def('simpleExpression', char('@') & ref('expressionVariable'));
-    def('expressionVariable', pattern(r'a-zA-Z_$').plus().flatten());
+    def('simpleExpression', char('@') & ref('variable'));
+    def('variable', pattern(r'a-zA-Z_$').plus().flatten());
     def('complexExpression', char('@') & ref('complexExpressionBody'));
     def('complexExpressionBody', (
       char('{') & (
@@ -71,7 +73,7 @@ class SharkParser extends CompositeParser {
   }
 
   parser() {
-    action('start', (each) => new SharkDocument(_expand(compress(each))));
+    action('start', (each) => new SharkDocument(_expand(convertStringToTextNode(compress(each)))));
     action('atAt', (_) => '@');
     action('sharkTag', _sharkTag);
     action('sharkPlainTextTag', _sharkTag);
@@ -94,6 +96,10 @@ class SharkParser extends CompositeParser {
     action('codeParam', (each) {
       return [new TagParam(null, each, null)];
     });
+    action('singleString', (each) => new SharkText(each));
+    action('doubleString', (each) => new SharkText(each));
+    action('numberExpression', (each) => new SharkExpression(each));
+    action('variableExpression', (each) => new SharkExpression(each));
   }
 
   Parser _sharkString(String boundChar) {
@@ -155,7 +161,8 @@ class BlockParser extends Parser {
 
       result = endParser.parseOn(entry);
       if (result.isSuccess) {
-        return result.success(body.compress());
+        var elements = convertStringToTextNode(body.compress());
+        return result.success(new SharkBlock(elements));
       }
 
       if (this.nonAnyCharParser != null) {
@@ -172,7 +179,7 @@ class BlockParser extends Parser {
         continue;
       }
 
-      return result;
+      return result.success(new SharkBlock(result.value));
     }
   }
 

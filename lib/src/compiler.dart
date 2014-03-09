@@ -14,46 +14,11 @@ typedef String FromTemplate(CompilableTemplate);
 class CompilableElement {
   CompilableElementType type;
   String content;
-
   FromTemplate func;
 
   CompilableElement(this.type, this.content);
 
   CompilableElement.fromTemplate(this.type, this.func);
-}
-
-dynamic toCompilable(dynamic sharkNode) {
-  if (sharkNode is SharkExpression) {
-    return expr(sharkNode.expression) ;
-  } else if (sharkNode is String) {
-    return text(sharkNode);
-  } else if (sharkNode is SharkDocument) {
-    return toCompilable(sharkNode.children);
-  } else if (sharkNode is SharkTag) {
-    return toCompilable([sharkNode]).first;
-  } else if (sharkNode is List) {
-    var result = [];
-    var list = sharkNode as List;
-    while (list.isNotEmpty) {
-      var first = list.removeAt(0);
-      if (first is SharkTag) {
-        var tag = (first as SharkTag);
-        var tagHandler = tagRepository.find(tag.tagName);
-        if (tagHandler == null) {
-          throw 'No tag handler found for tag: ${tag.tagName}';
-        }
-        var tagHandleResult = tagHandler.handle(tag, list);
-        result.add(tagHandleResult.elements);
-        if (tagHandleResult.tail.isNotEmpty) {
-          result.add(toCompilable(tagHandleResult.tail));
-        }
-        break;
-      } else {
-        result.add(toCompilable(first));
-      }
-    }
-    return result;
-  }
 }
 
 class Compiler {
@@ -98,7 +63,7 @@ class CompilableTemplate {
     if (this.templateRootDir == null) {
       this.templateRootDir = new Directory(path.current);
     }
-    _categoryWalk(toCompilable(doc), 0);
+    _categoryWalk(doc.toCompilable(), 0);
   }
 
   String generate() {

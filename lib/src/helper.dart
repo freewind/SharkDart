@@ -1,5 +1,9 @@
 part of shark;
 
+List<SharkNode> convertStringToTextNode(list) {
+  return list.map((element) => element is String ? new SharkText(element) : element).toList();
+}
+
 compress(List elements) {
   var compressList = new CompressList();
   for (var element in elements) {

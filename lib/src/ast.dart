@@ -1,29 +1,35 @@
 part of shark;
 
 abstract class SharkNode {
+  String toString();
 
+  CompilableElement toCompilable();
 }
 
 class SharkDocument extends SharkNode {
-  List children;
+  SharkNodeList children;
 
-  SharkDocument(List children) {
-    this.children = children;
+  SharkDocument(List<SharkNode> children) {
+    this.children = new SharkNodeList(children);
   }
 
   @override
-  String toString() {
-    return children.toString();
-  }
+  CompilableElement toCompilable() => children.toCompilable();
+
+  @override
+  String toString() => children.toString();
 
 }
 
 class SharkTag extends SharkNode {
   String tagName;
   List<TagParam> tagParams;
-  dynamic body;
+  SharkBlock body;
 
   SharkTag(this.tagName, this.tagParams, this.body);
+
+  @override
+  CompilableElement toCompilable() => new SharkNodeList(this).toCompilable();
 
   @override
   String toString() {
@@ -61,7 +67,7 @@ class SharkTag extends SharkNode {
 
   bool get hasNoBody => body == null;
 
-  String getParam(String paramKey) {
+  SharkNode getParam(String paramKey) {
     if (tagParams == null) {
       return null;
     }
@@ -71,12 +77,17 @@ class SharkTag extends SharkNode {
     }
     return found.paramDescription;
   }
+
+  bool getParamAsBool(String paramKey) {
+    var value = getParam(paramKey);
+    return value is SharkExpression && value.expression == 'true';
+  }
 }
 
 class TagParam extends SharkNode {
   String paramType;
   String paramVariable;
-  dynamic paramDescription;
+  SharkNode paramDescription;
 
   TagParam(this.paramType, this.paramVariable, this.paramDescription);
 
@@ -96,26 +107,111 @@ class TagParam extends SharkNode {
 
 }
 
+class SharkBlock extends SharkNode {
+  SharkNodeList elements;
+
+  SharkBlock(elements) {
+    if (elements is List) {
+      this.elements = new SharkNodeList(elements);
+    } else {
+      this.elements = new SharkNodeList([elements]);
+    }
+  }
+
+  @override
+  CompilableElement toCompilable() => elements.toCompilable();
+
+  @override
+  String toString() => this.elements.toString();
+
+  bool get isEmpty => elements.isEmpty;
+
+  void trim() {
+    if (elements.isEmpty) return;
+
+    var first = elements.elements.first;
+    if (first is SharkText) {
+      var sharkText = first as SharkText;
+      sharkText.content = _trimLeft(sharkText.content);
+    }
+    var last = elements.elements.last;
+    if (last is SharkText) {
+      var sharkText = last as SharkText;
+      sharkText.content = _trimRight(sharkText.content);
+    }
+  }
+
+  String _trimLeft(String str) {
+    return str.replaceFirst(new RegExp(r"^\s+"), "");
+  }
+
+  String _trimRight(String str) {
+    return str.replaceFirst(new RegExp(r"\s+$"), "");
+  }
+}
+
 class SharkExpression extends SharkNode {
   String expression;
 
   SharkExpression(this.expression);
 
   @override
-  String toString() {
-    return '$runtimeType($expression)';
-  }
+  CompilableElement toCompilable() => expr(expression);
+
+  @override
+  String toString() => '$runtimeType($expression)';
 
 }
 
-class Text extends SharkNode {
+class SharkText extends SharkNode {
   String content;
 
-  Text(this.content);
+  SharkText(this.content);
 
   @override
-  String toString() {
-    return content;
+  CompilableElement toCompilable() => text(content);
+
+  @override
+  String toString() => content;
+
+}
+
+class SharkNodeList extends SharkNode {
+
+  List<SharkNode> elements = [];
+
+  SharkNodeList(this.elements);
+
+  bool get isEmpty => elements.isEmpty;
+
+  int get length => elements.length;
+
+  @override
+  CompilableElement toCompilable() {
+    var result = [];
+    List<SharkNode> list = []
+      ..addAll(elements);
+
+    while (list.isNotEmpty) {
+      var first = list.removeAt(0);
+      if (first is SharkTag) {
+        var tag = (first as SharkTag);
+        var tagHandler = tagRepository.find(tag.tagName);
+        if (tagHandler == null) {
+          throw 'No tag handler found for tag: ${tag.tagName}';
+        }
+        var tagHandleResult = tagHandler.handle(tag, list);
+        result.add(tagHandleResult.elements);
+        if (tagHandleResult.tail.isNotEmpty) {
+          result.add(new SharkNodeList(tagHandleResult.tail).toCompilable());
+        }
+        break;
+      } else {
+        result.add(first.toCompilable());
+      }
+    }
+    return result;
   }
 
+  String toString() => elements.toString();
 }

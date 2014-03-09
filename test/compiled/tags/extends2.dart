@@ -7,8 +7,11 @@ String render({String user, String _body_()}) {
     _body_ = () => '';
   }
   var _sb_ = new StringBuffer();
-  var user_1 =
-  _sb_.write('user');
+  var user_1 = () {
+    var _sb_ = new StringBuffer();
+    _sb_.write(user);
+    return _sb_.toString();
+  }();
   _sb_.write(_shark_layout_0.render(user: user_1, _body_ : () {
     var _sb_ = new StringBuffer();
     _sb_.writeln('This is inner page!');

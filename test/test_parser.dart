@@ -27,13 +27,13 @@ test_parser() {
     test('has non-empty param', () {
       successParse('@!code (abc) {{ @var @@ }}', '[SharkTag(code, (abc), {[ @var @@ ]})]');
       successParse('@!code (bool abc) {{ @var @@ }}', '[SharkTag(code, (bool abc), {[ @var @@ ]})]');
-      successParse('@!code (bool abc : xyz) {{ @var @@ }}', '[SharkTag(code, (bool abc: xyz), {[ @var @@ ]})]');
-      successParse('@!code (bool abc : xyz, ddd) {{ @var @@ }}', '[SharkTag(code, (bool abc: xyz, ddd), {[ @var @@ ]})]');
-      successParse('@!code (bool abc : xyz, List<U> ddd: eee) {{ @var @@ }}', '[SharkTag(code, (bool abc: xyz, List<U> ddd: eee), {[ @var @@ ]})]');
+      successParse('@!code (bool abc : xyz) {{ @var @@ }}', '[SharkTag(code, (bool abc: SharkExpression(xyz)), {[ @var @@ ]})]');
+      successParse('@!code (bool abc : xyz, ddd) {{ @var @@ }}', '[SharkTag(code, (bool abc: SharkExpression(xyz), ddd), {[ @var @@ ]})]');
+      successParse('@!code (bool abc : xyz, List<U> ddd: eee) {{ @var @@ }}', '[SharkTag(code, (bool abc: SharkExpression(xyz), List<U> ddd: SharkExpression(eee)), {[ @var @@ ]})]');
     });
     test('param description', () {
-      successParse('@!code (age: 123.4) {{ @var @@ }}', '[SharkTag(code, (age: 123.4), {[ @var @@ ]})]');
-      successParse('@!code (List<User> users: default_users) {{ @var @@ }}', '[SharkTag(code, (List<User> users: default_users), {[ @var @@ ]})]');
+      successParse('@!code (age: 123.4) {{ @var @@ }}', '[SharkTag(code, (age: SharkExpression(123.4)), {[ @var @@ ]})]');
+      successParse('@!code (List<User> users: default_users) {{ @var @@ }}', '[SharkTag(code, (List<User> users: SharkExpression(default_users)), {[ @var @@ ]})]');
       successParse(r'@!code (users: "a\"b\"c") {{ @var @@ }}', r'[SharkTag(code, (users: "a\"b\"c"), {[ @var @@ ]})]');
       successParse(r"@!code (users: 'a\'b\'c') {{ @var @@ }}", r"[SharkTag(code, (users: 'a\'b\'c'), {[ @var @@ ]})]");
       successParse(r"@!code (users: {@@}) {{ @var @@ }}", r"[SharkTag(code, (users: [@]), {[ @var @@ ]})]");
@@ -54,19 +54,19 @@ test_parser() {
       successParse('@mytag () {{ @var @@ }}', '[SharkTag(mytag, (), {[ , SharkExpression(var),  @ ]})]');
       successParse('@mytag (abc) {{ @var @@ }}', '[SharkTag(mytag, (abc), {[ , SharkExpression(var),  @ ]})]');
       successParse('@mytag (bool abc) {{ @var @@ }}', '[SharkTag(mytag, (bool abc), {[ , SharkExpression(var),  @ ]})]');
-      successParse('@mytag (bool abc : xyz) {{ @var @@ }}', '[SharkTag(mytag, (bool abc: xyz), {[ , SharkExpression(var),  @ ]})]');
-      successParse('@mytag (bool abc : xyz, ddd) {{ @var @@ }}', '[SharkTag(mytag, (bool abc: xyz, ddd), {[ , SharkExpression(var),  @ ]})]');
-      successParse('@mytag (bool abc : xyz, List<U> ddd: eee) {{ @var @@ }}', '[SharkTag(mytag, (bool abc: xyz, List<U> ddd: eee), {[ , SharkExpression(var),  @ ]})]');
+      successParse('@mytag (bool abc : xyz) {{ @var @@ }}', '[SharkTag(mytag, (bool abc: SharkExpression(xyz)), {[ , SharkExpression(var),  @ ]})]');
+      successParse('@mytag (bool abc : xyz, ddd) {{ @var @@ }}', '[SharkTag(mytag, (bool abc: SharkExpression(xyz), ddd), {[ , SharkExpression(var),  @ ]})]');
+      successParse('@mytag (bool abc : xyz, List<U> ddd: eee) {{ @var @@ }}', '[SharkTag(mytag, (bool abc: SharkExpression(xyz), List<U> ddd: SharkExpression(eee)), {[ , SharkExpression(var),  @ ]})]');
     });
     test('param description', () {
-      successParse('@mytag (age: 123.4) {{ @var @@ }}', '[SharkTag(mytag, (age: 123.4), {[ , SharkExpression(var),  @ ]})]');
-      successParse('@mytag (List<User> users: default_users) {{ @var @@ }}', '[SharkTag(mytag, (List<User> users: default_users), {[ , SharkExpression(var),  @ ]})]');
+      successParse('@mytag (age: 123.4) {{ @var @@ }}', '[SharkTag(mytag, (age: SharkExpression(123.4)), {[ , SharkExpression(var),  @ ]})]');
+      successParse('@mytag (List<User> users: default_users) {{ @var @@ }}', '[SharkTag(mytag, (List<User> users: SharkExpression(default_users)), {[ , SharkExpression(var),  @ ]})]');
       successParse(r'@mytag (users: "a\"b\"c") {{ @var @@ }}', r'[SharkTag(mytag, (users: "a\"b\"c"), {[ , SharkExpression(var),  @ ]})]');
       successParse(r"@mytag (users: 'a\'b\'c') {{ @var @@ }}", r"[SharkTag(mytag, (users: 'a\'b\'c'), {[ , SharkExpression(var),  @ ]})]");
       successParse(r"@mytag (users: {@@}) {{ @var @@ }}", r"[SharkTag(mytag, (users: [@]), {[ , SharkExpression(var),  @ ]})]");
     });
     test('path-like param variable', () {
-      successParse('@mytag(./layout1,   user:user) {}', '[SharkTag(mytag, (./layout1, user: user), {[]})]');
+      successParse('@mytag(./layout1,   user:user) {}', '[SharkTag(mytag, (./layout1, user: SharkExpression(user)), {[]})]');
     });
     test('no block', () {
       successParse('@mytag (user)', '[SharkTag(mytag, (user), <null>)]');
