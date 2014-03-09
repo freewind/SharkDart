@@ -108,11 +108,17 @@ class ParamsTagHandler extends TagHandler {
 
 }
 
-class ExtendsTagHandler extends TagHandler {
+class RenderTagHandler extends TagHandler {
+  bool implicitBody;
+
+  RenderTagHandler(this.implicitBody);
+
   TagHandleResult handle(SharkTag tag, List nodesAfterTag) {
     var layoutFunName = tag.tagParams.first.paramVariable;
+    implicitBody = tag.getParamAsBool('implicitBody', implicitBody);
+
     var compilables = [];
-    var layoutVar = '_shark_layout_${nextId()}';
+    var layoutVar = '_shark_render_${nextId()}';
     var importPathStmt = _calcImportPath(layoutFunName, layoutVar);
     compilables.add(importPathStmt);
 
@@ -133,15 +139,17 @@ class ExtendsTagHandler extends TagHandler {
     var paramStr = params.map((p) => "${p.paramName}: ${p.paramGeneratedVariable}").join(', ');
     compilables.add(stmt('_sb_.write(${layoutVar}.render($paramStr, implicitBody_ : () {'));
     compilables.add(stmt('var _sb_ = new StringBuffer();'));
-    if (tag.hasNoBody) {
+    if (tag.hasNoBody && implicitBody) {
       compilables.add(new SharkNodeList(nodesAfterTag).toCompilable());
     } else {
-      compilables.add(tag.body.toCompilable());
+      if (tag.body != null) {
+        compilables.add(tag.body.toCompilable());
+      }
     }
     compilables.add(stmt('return _sb_.toString();'));
     compilables.add(stmt('}));'));
 
-    if (tag.hasNoBody) {
+    if (tag.hasNoBody && implicitBody) {
       return new TagHandleResult(compilables, []);
     } else {
       return new TagHandleResult(compilables, nodesAfterTag);
@@ -201,9 +209,4 @@ class DartTagHandler extends TagHandler {
   }
 }
 
-class RenderTagHandler extends TagHandler {
-  TagHandleResult handle(SharkTag tag, List nodesAfterTag) {
-
-  }
-}
 

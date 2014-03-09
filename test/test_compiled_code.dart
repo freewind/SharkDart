@@ -17,6 +17,7 @@ import 'compiled/tags/params2.dart' as tags$params2;
 import 'compiled/tags/layout1.dart' as tags$layout1;
 import 'compiled/tags/extends1.dart' as tags$extends1;
 import 'compiled/tags/extends2.dart' as tags$extends2;
+import 'compiled/tags/outer1.dart' as tags$outer1;
 
 import 'compiled/users/index.dart' as users$index;
 import 'compiled/users/show.dart' as users$show;
@@ -44,25 +45,25 @@ main() {
       var result = tags$if_elseif_else1.render(num:2);
       expectRendered(result, 'rendered/tags/if_elseif_else1.txt');
     });
-    test('@params1', () {
+    test('@params 1', () {
       var result = tags$params1.render(user:'Shark');
       expectRendered(result, 'rendered/tags/params1.txt');
     });
-    test('@params2', () {
+    test('@params 2', () {
       var result = tags$params2.render(user:'Shark');
       expectRendered(result, 'rendered/tags/params2.txt');
     });
-    test('@layout1', () {
-      var result = tags$params2.render(user:'Shark');
-      expectRendered(result, 'rendered/tags/params2.txt');
-    });
-    test('@extends1', () {
+    test('@extends 1', () {
       var result = tags$extends1.render(user:'Shark');
       expectRendered(result, 'rendered/tags/extends1.txt');
     });
-    test('@extends2', () {
+    test('@extends 2', () {
       var result = tags$extends2.render(user:'Shark');
       expectRendered(result, 'rendered/tags/extends2.txt');
+    });
+    test('@render', () {
+      var result = tags$outer1.render();
+      expectRendered(result, 'rendered/tags/outer1.txt');
     });
   });
   group('sites', () {

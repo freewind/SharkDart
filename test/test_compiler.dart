@@ -20,13 +20,13 @@ test_compiler() {
       ''');
     });
     test('plain text template', () {
-      successCompiled("hello 'world", '''
+      successCompiled("'hello 'world'", r'''
         String render({String implicitBody_()}) {
           if (implicitBody_ == null) {
             implicitBody_ = () => '';
           }
           var _sb_ = new StringBuffer();
-          _sb_.write('hello \'world');
+          _sb_.write('\'hello \'world\'');
           return _sb_.toString();
         }
       ''');

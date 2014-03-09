@@ -152,9 +152,11 @@ class CompilableTemplate {
       buffer.writeln("_sb_.write('$lastLine');");
     } else {
       _writeIndentLevel(buffer, indentElement.indentLevel);
-      buffer.writeln("_sb_.write('$text');");
+      buffer.writeln("_sb_.write('${_escapeQuotes(text)}');");
     }
   }
+
+  String _escapeQuotes(String str) => str.replaceAll("'", r"\'");
 
   _writeStatement(StringBuffer buffer, _IndentCompilableElement indentElement) {
     _writeIndentLevel(buffer, indentElement.indentLevel);

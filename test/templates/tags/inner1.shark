@@ -1,0 +1,3 @@
+@params(String title)
+
+<div>Inner1: @title</div>

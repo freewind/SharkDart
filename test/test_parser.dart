@@ -34,8 +34,8 @@ test_parser() {
     test('param description', () {
       successParse('@!code (age: 123.4) {{ @var @@ }}', '[SharkTag(code, (age: SharkExpression(123.4)), {[ @var @@ ]})]');
       successParse('@!code (List<User> users: default_users) {{ @var @@ }}', '[SharkTag(code, (List<User> users: SharkExpression(default_users)), {[ @var @@ ]})]');
-      successParse(r'@!code (users: "a\"b\"c") {{ @var @@ }}', r'[SharkTag(code, (users: "a\"b\"c"), {[ @var @@ ]})]');
-      successParse(r"@!code (users: 'a\'b\'c') {{ @var @@ }}", r"[SharkTag(code, (users: 'a\'b\'c'), {[ @var @@ ]})]");
+      successParse(r'@!code (users: "a\"b\"c") {{ @var @@ }}', r'[SharkTag(code, (users: a"b"c), {[ @var @@ ]})]');
+      successParse(r"@!code (users: 'a\'b\'c') {{ @var @@ }}", r"[SharkTag(code, (users: a'b'c), {[ @var @@ ]})]");
       successParse(r"@!code (users: {@@}) {{ @var @@ }}", r"[SharkTag(code, (users: [@]), {[ @var @@ ]})]");
     });
     test('no block', () {
@@ -61,8 +61,8 @@ test_parser() {
     test('param description', () {
       successParse('@mytag (age: 123.4) {{ @var @@ }}', '[SharkTag(mytag, (age: SharkExpression(123.4)), {[ , SharkExpression(var),  @ ]})]');
       successParse('@mytag (List<User> users: default_users) {{ @var @@ }}', '[SharkTag(mytag, (List<User> users: SharkExpression(default_users)), {[ , SharkExpression(var),  @ ]})]');
-      successParse(r'@mytag (users: "a\"b\"c") {{ @var @@ }}', r'[SharkTag(mytag, (users: "a\"b\"c"), {[ , SharkExpression(var),  @ ]})]');
-      successParse(r"@mytag (users: 'a\'b\'c') {{ @var @@ }}", r"[SharkTag(mytag, (users: 'a\'b\'c'), {[ , SharkExpression(var),  @ ]})]");
+      successParse(r'@mytag (users: "a\"b\"c") {{ @var @@ }}', r'[SharkTag(mytag, (users: a"b"c), {[ , SharkExpression(var),  @ ]})]');
+      successParse(r"@mytag (users: 'a\'b\'c') {{ @var @@ }}", r"[SharkTag(mytag, (users: a'b'c), {[ , SharkExpression(var),  @ ]})]");
       successParse(r"@mytag (users: {@@}) {{ @var @@ }}", r"[SharkTag(mytag, (users: [@]), {[ , SharkExpression(var),  @ ]})]");
     });
     test('path-like param variable', () {

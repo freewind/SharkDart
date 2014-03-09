@@ -44,7 +44,8 @@ initializeBuiltInTags() {
   tagRepository.register('else', new ElseTagHandler());
   tagRepository.register('elseif', new ElseIfTagHandler());
   tagRepository.register('for', new ForTagHandler());
-  tagRepository.register('extends', new ExtendsTagHandler());
+  tagRepository.register('extends', new RenderTagHandler(true));
+  tagRepository.register('render', new RenderTagHandler(false));
   tagRepository.register('renderBody', new RenderBodyTagHandler());
   tagRepository.register('dart', new DartTagHandler());
 }

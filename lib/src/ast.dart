@@ -71,15 +71,19 @@ class SharkTag extends SharkNode {
     if (tagParams == null) {
       return null;
     }
-    var found = tagParams.firstWhere((param) => param.paramVariable == paramKey);
-    if (found == null) {
+    var matched = tagParams.where((param) => param.paramVariable == paramKey).toList();
+    if (matched.isEmpty) {
       return null;
     }
+    var found = matched.first;
     return found.paramDescription;
   }
 
-  bool getParamAsBool(String paramKey) {
+  bool getParamAsBool(String paramKey, [defaultValue]) {
     var value = getParam(paramKey);
+    if (value == null && defaultValue != null) {
+      return defaultValue;
+    }
     return value is SharkExpression && value.expression == 'true';
   }
 }

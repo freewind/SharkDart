@@ -96,8 +96,8 @@ class SharkParser extends CompositeParser {
     action('codeParam', (each) {
       return [new TagParam(null, each, null)];
     });
-    action('singleString', (each) => new SharkText(each));
-    action('doubleString', (each) => new SharkText(each));
+    action('singleString', (each) => new SharkText(each.substring(1, each.length - 1).replaceAll(r"\'", "'")));
+    action('doubleString', (each) => new SharkText(each.substring(1, each.length - 1).replaceAll(r'\"', '"')));
     action('numberExpression', (each) => new SharkExpression(each));
     action('variableExpression', (each) => new SharkExpression(each));
   }

@@ -1,0 +1,6 @@
+<div>
+<div>Inner1: Top banner</div>
+</div>
+<div>
+<div>Inner2: Main panel</div>
+</div>

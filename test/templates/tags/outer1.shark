@@ -1,0 +1,6 @@
+<div>
+@render(./inner1, title: 'Top banner')
+</div>
+<div>
+@render(./inner2, title: 'Main panel')
+</div>
