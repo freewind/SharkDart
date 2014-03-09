@@ -7,7 +7,6 @@ class CompilableElementType {
   static final FUNCTION_BODY_TEXT = new CompilableElementType();
   static final FUNCTION_BODY_STATEMENT = new CompilableElementType();
   static final FUNCTION_BODY_EXPRESSION = new CompilableElementType();
-  static final FUNCTION_RETURN = new CompilableElementType();
 }
 
 typedef String FromTemplate(CompilableTemplate);
@@ -93,7 +92,7 @@ class CompilableTemplate {
   String params;
   static const defaultBodyParam = "String _body_()";
   List<_IndentCompilableElement> functionBody = [];
-  String returnStatement = "  return _sb_.toString();";
+  String returnStatement = "";
 
   CompilableTemplate(SharkDocument doc, [this.templateRootDir, this.relativePath]) {
     if (this.templateRootDir == null) {
@@ -128,7 +127,7 @@ class CompilableTemplate {
     for (var item in functionBody) {
       _write(buffer, item);
     }
-    buffer.writeln(returnStatement);
+    buffer.writeln('  return _sb_.toString();');
     buffer.writeln('}');
     return buffer.toString();
   }
@@ -154,8 +153,6 @@ class CompilableTemplate {
       }
     } else if (item.type == CompilableElementType.FUNCTION_PARAM) {
       this.params = item.content;
-    } else if (item.type == CompilableElementType.FUNCTION_RETURN) {
-      this.returnStatement = item.content;
     } else {
       this.functionBody.add(new _IndentCompilableElement(indentLevel, item));
     }

@@ -71,7 +71,7 @@ class SharkParser extends CompositeParser {
   }
 
   parser() {
-    action('start', (each) => new SharkDocument(compress(each)));
+    action('start', (each) => new SharkDocument(_expand(compress(each))));
     action('atAt', (_) => '@');
     action('sharkTag', _sharkTag);
     action('sharkPlainTextTag', _sharkTag);
@@ -109,6 +109,18 @@ class SharkParser extends CompositeParser {
       (ref('tagParams').trim() & blockParser.optional())
       | (whitespace().star().trim().map((_) => null) & blockParser)
     );
+  }
+
+  List _expand(List elements) {
+    var result = [];
+    for (var element in elements) {
+      if (element is List) {
+        result.addAll(element);
+      } else {
+        result.add(element);
+      }
+    }
+    return result;
   }
 
   _sharkTag(each) {

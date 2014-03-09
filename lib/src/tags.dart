@@ -128,17 +128,19 @@ class ExtendsTagHandler extends TagHandler {
     });
 
     var paramStr = params.map((p) => "${p.paramName}: ${p.paramGeneratedVariable}").join(', ');
-    var returnStmtElement = returnStmt('return ${layoutVar}.render($paramStr, _body_ : () => _sb_.toString());');
+    compilables.add(stmt('_sb_.write(${layoutVar}.render($paramStr, _body_ : () {'));
+    compilables.add(stmt('var _sb_ = new StringBuffer();'));
+    if (tag.hasNoBody) {
+      compilables.add(toCompilable(nodesAfterTag));
+    } else {
+      compilables.add(toCompilable(tag.body));
+    }
+    compilables.add(stmt('return _sb_.toString();'));
+    compilables.add(stmt('}));'));
 
     if (tag.hasNoBody) {
-      compilables
-        ..add(toCompilable(nodesAfterTag))
-        ..add(returnStmtElement);
       return new TagHandleResult(compilables, []);
     } else {
-      compilables
-        ..add(toCompilable(tag.body))
-        ..add(returnStmtElement);
       return new TagHandleResult(compilables, nodesAfterTag);
     }
   }
@@ -187,5 +189,11 @@ class DartTagHandler extends TagHandler {
     return new TagHandleResult([
       stmt(content),
     ], nodesAfterTag);
+  }
+}
+
+class RenderTagHandler extends TagHandler {
+  TagHandleResult handle(SharkTag tag, List nodesAfterTag) {
+
   }
 }

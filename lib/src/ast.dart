@@ -2,14 +2,6 @@ part of shark;
 
 abstract class SharkNode {
 
-  void toString0(StringBuffer buffer);
-
-  String toString() {
-    var buffer = new StringBuffer();
-    toString0(buffer);
-    return buffer.toString();
-  }
-
 }
 
 class SharkDocument extends SharkNode {
@@ -20,10 +12,8 @@ class SharkDocument extends SharkNode {
   }
 
   @override
-  void toString0(buffer) {
-    for (var child in children) {
-      _write(buffer, child);
-    }
+  void toString() {
+    return children.toString();
   }
 
 }
@@ -35,7 +25,8 @@ class SharkTag extends SharkNode {
 
   SharkTag(this.tagName, this.tagParams, this.body);
 
-  void toString0(StringBuffer buffer) {
+  void toString() {
+    var buffer = new StringBuffer();
     buffer.write('$runtimeType');
     buffer.write('($tagName, ');
 
@@ -47,7 +38,7 @@ class SharkTag extends SharkNode {
         var first = true;
         for (var param in tagParams) {
           if (!first) buffer.write(', ');
-          _write(buffer, param);
+          buffer.write(param);
           first = false;
         }
       }
@@ -58,10 +49,11 @@ class SharkTag extends SharkNode {
       buffer.write('<null>');
     } else {
       buffer.write('{');
-      _write(buffer, body);
+      buffer.write(body);
       buffer.write('}');
     }
     buffer.write(')');
+    return buffer.toString();
   }
 
   bool get hasNoParams => tagParams == null;
@@ -87,15 +79,17 @@ class TagParam extends SharkNode {
 
   TagParam(this.paramType, this.paramVariable, this.paramDescription);
 
-  void toString0(StringBuffer buffer) {
+  void toString() {
+    var buffer = new StringBuffer();
     if (paramType != null) {
       buffer.write('$paramType ');
     }
     buffer.write(paramVariable);
     if (paramDescription != null) {
-      _write(buffer, ': ');
-      _write(buffer, paramDescription);
+      buffer.write(': ');
+      buffer.write(paramDescription);
     }
+    return buffer.toString();
   }
 
 }
@@ -105,8 +99,8 @@ class SharkExpression extends SharkNode {
 
   SharkExpression(this.expression);
 
-  void toString0(StringBuffer buffer) {
-    buffer.write('$runtimeType($expression)');
+  void toString() {
+    return '$runtimeType($expression)';
   }
 
 }
@@ -120,21 +114,4 @@ class Text extends SharkNode {
     buffer.write(content);
   }
 
-}
-
-_write(StringBuffer buffer, dynamic elements) {
-  if (elements == null) return;
-
-  if (elements is! List) {
-    elements = [elements];
-  }
-  for (var element in elements) {
-    if (element is List) {
-      _write(buffer, element);
-    } else if (element is SharkNode) {
-      element.toString0(buffer);
-    } else {
-      buffer.write(element);
-    }
-  }
 }
