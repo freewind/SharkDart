@@ -12,7 +12,7 @@ class SharkDocument extends SharkNode {
   }
 
   @override
-  void toString() {
+  String toString() {
     return children.toString();
   }
 
@@ -25,7 +25,8 @@ class SharkTag extends SharkNode {
 
   SharkTag(this.tagName, this.tagParams, this.body);
 
-  void toString() {
+  @override
+  String toString() {
     var buffer = new StringBuffer();
     buffer.write('$runtimeType');
     buffer.write('($tagName, ');
@@ -79,7 +80,8 @@ class TagParam extends SharkNode {
 
   TagParam(this.paramType, this.paramVariable, this.paramDescription);
 
-  void toString() {
+  @override
+  String toString() {
     var buffer = new StringBuffer();
     if (paramType != null) {
       buffer.write('$paramType ');
@@ -99,7 +101,8 @@ class SharkExpression extends SharkNode {
 
   SharkExpression(this.expression);
 
-  void toString() {
+  @override
+  String toString() {
     return '$runtimeType($expression)';
   }
 
@@ -110,8 +113,9 @@ class Text extends SharkNode {
 
   Text(this.content);
 
-  void toString0(StringBuffer buffer) {
-    buffer.write(content);
+  @override
+  String toString() {
+    return content;
   }
 
 }
