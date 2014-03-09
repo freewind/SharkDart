@@ -1,3 +1,11 @@
+@params(List<String> users)
+
 @for(user: users) {
+  # index: @user_index
+  # isFirst: @user_isFirst
+  # isLast: @user_isLast
+  # isOdd: @user_isOdd
+  # isEven: @user_isEven
   Hello, @user
+  ------------
 }

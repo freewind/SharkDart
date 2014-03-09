@@ -1,28 +1,44 @@
 library shark.views.tags.for1;
 
-String render({String _body_()}) {
-  if (_body_ == null) {
-    _body_ = () => '';
+String render({List<String> users, String implicitBody_()}) {
+  if (implicitBody_ == null) {
+     implicitBody_ = () => '';
   }
   var _sb_ = new StringBuffer();
-  if (users != null) {
-    int index_0 = 0;
-    int total_1 = 5;
-    for (var user in users) {
-      int user_index = index_0;
-      bool user_isFirst = index_0 == 0;
-      bool user_isLast = index_0 == total_1;
-      bool user_isOdd = index_0 % 2 == 1;
-      bool user_isEven = index_0 % 2 == 0;
-      index_0++;
-      _sb_.writeln('');
-      _sb_.write('  Hello, ');
-      _sb_.write(user);
-      _sb_.writeln('');
-      _sb_.write('');
-    }
-  }
-  _sb_.writeln('');
-  _sb_.write('');
+        if (users != null) {
+          int index_4 = 0;
+          int total_5 = users.length;
+          for (var user in users) {
+            int user_index = index_4;
+            bool user_isFirst = index_4 == 0;
+            bool user_isLast = index_4 == total_5 - 1;
+            bool user_isOdd = index_4 % 2 == 1;
+            bool user_isEven = index_4 % 2 == 0;
+            index_4++;
+          _sb_.writeln('');
+_sb_.write('  # index: ');
+          _sb_.write(user_index);
+          _sb_.writeln('');
+_sb_.write('  # isFirst: ');
+          _sb_.write(user_isFirst);
+          _sb_.writeln('');
+_sb_.write('  # isLast: ');
+          _sb_.write(user_isLast);
+          _sb_.writeln('');
+_sb_.write('  # isOdd: ');
+          _sb_.write(user_isOdd);
+          _sb_.writeln('');
+_sb_.write('  # isEven: ');
+          _sb_.write(user_isEven);
+          _sb_.writeln('');
+_sb_.write('  Hello, ');
+          _sb_.write(user);
+          _sb_.writeln('');
+          _sb_.writeln('  ------------');
+_sb_.write('');
+          }
+        }
+        _sb_.writeln('');
+_sb_.write('');
   return _sb_.toString();
 }

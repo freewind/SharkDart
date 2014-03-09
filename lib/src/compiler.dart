@@ -55,7 +55,7 @@ class CompilableTemplate {
   String libraryStatement;
   List<String> importStatements = [];
   String params;
-  static const defaultBodyParam = "String _body_()";
+  static const defaultBodyParam = "String implicitBody_()";
   List<_IndentCompilableElement> functionBody = [];
   String returnStatement = "";
 
@@ -85,8 +85,8 @@ class CompilableTemplate {
     } else {
       buffer.writeln('String render({$params, $defaultBodyParam}) {');
     }
-    buffer.writeln('  if (_body_ == null) {');
-    buffer.writeln('     _body_ = () => \'\';');
+    buffer.writeln('  if (implicitBody_ == null) {');
+    buffer.writeln('     implicitBody_ = () => \'\';');
     buffer.writeln('  }');
     buffer.writeln('  var _sb_ = new StringBuffer();');
     for (var item in functionBody) {

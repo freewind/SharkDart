@@ -1,3 +1,5 @@
 @!dart {{{
-  hello() => print('Hello, world!');
+  hello(who) => 'Hello, $who!';
 }}}
+
+<div>@{hello('SharkDart')}</div>

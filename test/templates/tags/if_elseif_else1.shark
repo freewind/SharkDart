@@ -1,7 +1,9 @@
+@params(int num)
+
 Hello,
-@if(1 == 2) {
+@if(num == 1) {
   air!
-} @elseif(1 == 3) {
+} @elseif(num == 2) {
   sky!
 } @else {
   world!

@@ -72,11 +72,11 @@ class ForTagHandler extends TagHandler {
     return new TagHandleResult([
       stmt('if ($collections != null) {'),
       stmt('  int ${indexVar} = 0;'),
-      stmt('  int ${countVar} = ${collections.length};'),
+      stmt('  int ${countVar} = ${collections}.length;'),
       stmt('  for (var $variable in $collections) {'),
       stmt('    int ${variable}_index = ${indexVar};'),
       stmt('    bool ${variable}_isFirst = ${indexVar} == 0;'),
-      stmt('    bool ${variable}_isLast = ${indexVar} == ${countVar};'),
+      stmt('    bool ${variable}_isLast = ${indexVar} == ${countVar} - 1;'),
       stmt('    bool ${variable}_isOdd = ${indexVar} % 2 == 1;'),
       stmt('    bool ${variable}_isEven = ${indexVar} % 2 == 0;'),
       stmt('    ${indexVar}++;'),
@@ -131,7 +131,7 @@ class ExtendsTagHandler extends TagHandler {
     });
 
     var paramStr = params.map((p) => "${p.paramName}: ${p.paramGeneratedVariable}").join(', ');
-    compilables.add(stmt('_sb_.write(${layoutVar}.render($paramStr, _body_ : () {'));
+    compilables.add(stmt('_sb_.write(${layoutVar}.render($paramStr, implicitBody_ : () {'));
     compilables.add(stmt('var _sb_ = new StringBuffer();'));
     if (tag.hasNoBody) {
       compilables.add(new SharkNodeList(nodesAfterTag).toCompilable());
@@ -180,7 +180,7 @@ class _ImportPath {
 class RenderBodyTagHandler extends TagHandler {
   TagHandleResult handle(SharkTag tag, List nodesAfterTag) {
     return new TagHandleResult([
-      expr('_body_()')
+      expr('implicitBody_()')
     ], nodesAfterTag);
   }
 }

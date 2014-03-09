@@ -1,3 +1,3 @@
 @params(String user)
 
-<div>hello, @user</div>
+<div>hello, @user!</div>

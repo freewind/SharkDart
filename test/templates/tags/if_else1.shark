@@ -1,6 +1,8 @@
-Hello,
-@if(1 == 2) {
-  air!
+@params(int num)
+
+Hello, the number is:
+@if(num == 1) {
+  ONE!
 } @else {
-  world!
+  NOT ONE!
 }

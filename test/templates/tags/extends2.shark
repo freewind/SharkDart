@@ -2,4 +2,4 @@
 
 @extends(tags/layout1, user: user)
 
-This is inner page!
+This is inner page with @user!

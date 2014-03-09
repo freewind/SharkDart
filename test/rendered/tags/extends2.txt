@@ -1,0 +1,3 @@
+<div>Hello, Shark!</div>
+<div>This is inner page with Shark!
+</div>
