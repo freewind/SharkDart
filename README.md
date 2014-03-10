@@ -49,22 +49,21 @@ and we will invoke it like:
 
     // import generated hello.dart from somewhere
     import 'hello.dart' as hello;
-    var data = { 'name': 'world' };
-    String result = hello.render(data);
+    String result = hello.render({name: 'world'});
 
 Built-in tags
 -------------
 
-- @params(String user, List<String> friends)
-- @extends(./layout, user: 'Shark')
-- @renderBody()
-- @if(name=='Shark') { ... }
-- @elseif(name=='Dart') { ... }
-- @else { ... }
-- @for(user: users, separator: ',') { ... }
-- @render(./another, title: 'Left') { ... }
-- @!dart { ... }
-- @!plainText(trim:true) { ... }
+- `@params(String user, List<String> friends)`
+- `@extends(./layout, user: 'Shark')`
+- `@renderBody()`
+- `@if(name=='Shark') { ... }`
+- `@elseif(name=='Dart') { ... }`
+- `@else { ... }`
+- `@for(user: users, separator: ',') { ... }`
+- `@render(./another, title: 'Left') { ... }`
+- `@!dart { ... }`
+- `@!plainText(trim:true) { ... }`
 
 You can see the usage in the 'test/templates/tags' directory.
 
