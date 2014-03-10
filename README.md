@@ -55,7 +55,18 @@ and we will invoke it like:
 Built-in tags
 -------------
 
-TODO
+- @params(String user, List<String> friends)
+- @extends(./layout, user: 'Shark')
+- @renderBody()
+- @if(name=='Shark') { ... }
+- @elseif(name=='Dart') { ... }
+- @else { ... }
+- @for(user: users, separator: ',') { ... }
+- @render(./another, title: 'Left') { ... }
+- @!dart { ... }
+- @!plainText(trim:true) { ... }
+
+You can see the usage in the 'test/templates/tags' directory.
 
 Thanks
 ------
