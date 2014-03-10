@@ -1,0 +1,17 @@
+<div>
+@!plainText(trim:true) {{{
+
+
+
+
+
+
+  @hello() {}
+
+
+
+
+
+
+}}}
+</div>

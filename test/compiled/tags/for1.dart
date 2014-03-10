@@ -14,6 +14,9 @@ String render({List<String> users, String implicitBody_()}) {
             bool user_isLast = index_4 == total_5 - 1;
             bool user_isOdd = index_4 % 2 == 1;
             bool user_isEven = index_4 % 2 == 0;
+            if(!user_isFirst) {
+        _sb_.write('');
+            }
             index_4++;
           _sb_.writeln('');
 _sb_.write('  # index: ');

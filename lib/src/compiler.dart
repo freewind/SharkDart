@@ -147,9 +147,9 @@ class CompilableTemplate {
       var lastLine = lines.removeLast();
       for (var line in lines) {
         _writeIndentLevel(buffer, indentElement.indentLevel);
-        buffer.writeln("_sb_.writeln('$line');");
+        buffer.writeln("_sb_.writeln('${_escapeQuotes(line)}');");
       }
-      buffer.writeln("_sb_.write('$lastLine');");
+      buffer.writeln("_sb_.write('${_escapeQuotes(lastLine)}');");
     } else {
       _writeIndentLevel(buffer, indentElement.indentLevel);
       buffer.writeln("_sb_.write('${_escapeQuotes(text)}');");

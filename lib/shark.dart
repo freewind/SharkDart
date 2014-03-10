@@ -36,8 +36,6 @@ CompilableElement expr(String input) => new CompilableElement(CompilableElementT
 
 CompilableElement text(String input) => new CompilableElement(CompilableElementType.FUNCTION_BODY_TEXT, input);
 
-CompilableElement returnStmt(String input) => new CompilableElement(CompilableElementType.FUNCTION_RETURN, input);
-
 initializeBuiltInTags() {
   tagRepository.register('params', new ParamsTagHandler());
   tagRepository.register('if', new IfTagHandler());
@@ -48,4 +46,5 @@ initializeBuiltInTags() {
   tagRepository.register('render', new RenderTagHandler(false));
   tagRepository.register('renderBody', new RenderBodyTagHandler());
   tagRepository.register('dart', new DartTagHandler());
+  tagRepository.register('plainText', new PlainTextTagHandler());
 }

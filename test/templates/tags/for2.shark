@@ -1,0 +1,7 @@
+@params(List<String> users)
+
+[
+@for(user: users, separator: ',') {{{
+  { 'name' : '@user' }
+}}}
+]

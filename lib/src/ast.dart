@@ -79,9 +79,14 @@ class SharkTag extends SharkNode {
     return found.paramDescription;
   }
 
-  bool getParamAsBool(String paramKey, [defaultValue]) {
+  String getParamAsString(String paramKey, [String defaultValue]) {
+    var node = getParam(paramKey);
+    return node == null ? defaultValue : node.toString();
+  }
+
+  bool getParamAsBool(String paramKey, [bool defaultValue]) {
     var value = getParam(paramKey);
-    if (value == null && defaultValue != null) {
+    if (value == null) {
       return defaultValue;
     }
     return value is SharkExpression && value.expression == 'true';
@@ -146,11 +151,11 @@ class SharkBlock extends SharkNode {
   }
 
   String _trimLeft(String str) {
-    return str.replaceFirst(new RegExp(r"^\s+"), "");
+    return str.replaceFirst(new RegExp(r"^[\r\n\s]+"), "");
   }
 
   String _trimRight(String str) {
-    return str.replaceFirst(new RegExp(r"\s+$"), "");
+    return str.replaceFirst(new RegExp(r"[\r\n\s]+$"), "");
   }
 }
 

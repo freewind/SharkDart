@@ -9,6 +9,7 @@ import "../lib/shark.dart";
 
 import 'compiled/tags/dart1.dart' as tags$dart1;
 import 'compiled/tags/for1.dart' as tags$for1;
+import 'compiled/tags/for2.dart' as tags$for2;
 import 'compiled/tags/if1.dart' as tags$if1;
 import 'compiled/tags/if_else1.dart' as tags$if_else1;
 import 'compiled/tags/if_elseif_else1.dart' as tags$if_elseif_else1;
@@ -18,6 +19,8 @@ import 'compiled/tags/layout1.dart' as tags$layout1;
 import 'compiled/tags/extends1.dart' as tags$extends1;
 import 'compiled/tags/extends2.dart' as tags$extends2;
 import 'compiled/tags/outer1.dart' as tags$outer1;
+import 'compiled/tags/plainText1.dart' as tags$plainText1;
+import 'compiled/tags/plainText2.dart' as tags$plainText2;
 
 import 'compiled/users/index.dart' as users$index;
 import 'compiled/users/show.dart' as users$show;
@@ -28,10 +31,15 @@ main() {
       var result = tags$dart1.render();
       expectRendered(result, 'rendered/tags/dart1.txt');
     });
-    test('@for', () {
+    test('@for 1', () {
       var users = ['AAA', 'BBB', 'CCC'];
       var result = tags$for1.render(users: users);
       expectRendered(result, 'rendered/tags/for1.txt');
+    });
+    test('@for 2', () {
+      var users = ['AAA', 'BBB', 'CCC'];
+      var result = tags$for2.render(users: users);
+      expectRendered(result, 'rendered/tags/for2.txt');
     });
     test('@if', () {
       var result = tags$if1.render(num:1);
@@ -64,6 +72,14 @@ main() {
     test('@render', () {
       var result = tags$outer1.render();
       expectRendered(result, 'rendered/tags/outer1.txt');
+    });
+    test('@plainText 1', () {
+      var result = tags$plainText1.render();
+      expectRendered(result, 'rendered/tags/plainText1.txt');
+    });
+    test('@plainText 2', () {
+      var result = tags$plainText2.render();
+      expectRendered(result, 'rendered/tags/plainText2.txt');
     });
   });
   group('sites', () {

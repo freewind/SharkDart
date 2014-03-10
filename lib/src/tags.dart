@@ -63,6 +63,8 @@ class ElseIfTagHandler extends TagHandler {
 
 class ForTagHandler extends TagHandler {
   TagHandleResult handle(SharkTag tag, List nodesAfterTag) {
+    var separator = tag.getParamAsString('separator', '');
+
     var main = tag.tagParams.first;
     var type = (main.paramType == null ? 'var' : main.paramType);
     var variable = main.paramVariable;
@@ -79,11 +81,16 @@ class ForTagHandler extends TagHandler {
       stmt('    bool ${variable}_isLast = ${indexVar} == ${countVar} - 1;'),
       stmt('    bool ${variable}_isOdd = ${indexVar} % 2 == 1;'),
       stmt('    bool ${variable}_isEven = ${indexVar} % 2 == 0;'),
+      stmt('    if(!${variable}_isFirst) {'),
+      text(separator),
+      stmt('    }'),
       stmt('    ${indexVar}++;'),
       tag.body.toCompilable(),
       stmt('  }'),
       stmt('}')
-    ], nodesAfterTag);
+    ], nodesAfterTag
+
+    );
   }
 }
 
@@ -209,4 +216,18 @@ class DartTagHandler extends TagHandler {
   }
 }
 
-
+class PlainTextTagHandler extends TagHandler {
+  TagHandleResult handle(SharkTag tag, List nodesAfterTag) {
+    var content = '';
+    if (tag.body != null) {
+      var trim = tag.getParamAsBool('trim', false);
+      if (trim) {
+        tag.body.trim();
+      }
+      content = tag.body.elements.elements.first.toString();
+    }
+    return new TagHandleResult([
+      text(content)
+    ], nodesAfterTag);
+  }
+}

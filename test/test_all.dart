@@ -10,6 +10,8 @@ import "../lib/shark.dart";
 part "test_parser.dart";
 part "test_helper.dart";
 part "test_compiler.dart";
+part "test_ast.dart";
+part "test_tags.dart";
 
 const DART_PATH = '/Users/freewind/dev/dart/dart-sdk/bin/dart';
 
@@ -17,6 +19,8 @@ main() {
   group("test_parser", test_parser);
   group("test_helper", test_helper);
   group("test_compiler", test_compiler);
+  group("test_ast", test_ast);
+  group("test_tags", test_tags);
 
   testRenderedTemplates();
 }
