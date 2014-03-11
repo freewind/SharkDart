@@ -22,6 +22,8 @@ String compile(String input) => new Compiler().compileTemplateString(input);
 
 Future<String> compileTemplateFile(Directory root, String relativeFilePath) => new Compiler().compileTemplateFile(root, relativeFilePath);
 
+Future<List<File>> compileTemplateDir(Directory root, {Directory targetDir, List<String> templateExtensions:const ['shark', 'html']}) => new Compiler().compileTemplateDir(root, targetDir:targetDir, templateExtensions:templateExtensions);
+
 CompilableElement libraryStmt(String input) => new CompilableElement(CompilableElementType.LIBRARY, input);
 
 CompilableElement importStmt(String input) => new CompilableElement(CompilableElementType.IMPORT, input);

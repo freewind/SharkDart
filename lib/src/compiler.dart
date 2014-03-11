@@ -23,6 +23,40 @@ class CompilableElement {
 
 class Compiler {
 
+  Future<List<File>> compileTemplateDir(Directory templateRoot, {Directory targetDir, List<String> templateExtensions: const ['shark', 'html']}) {
+    Completer _completer = new Completer<List<File>>();
+
+    List<Future<File>> compiledFiles = [];
+    templateRoot.list(recursive:true, followLinks:false).listen((event) {
+      if (event is File) {
+        var templateFile = event as File;
+        var templateFileNameNoEx = path.basenameWithoutExtension(templateFile.path);
+        var templateFileExtension = path.extension(templateFile.path);
+        if (templateFileExtension.startsWith('.')) {
+          templateFileExtension = templateFileExtension.substring(1);
+        }
+        if (templateExtensions.contains(templateFileExtension.toLowerCase())) {
+          var templateDirRelativePath = path.relative(templateFile.parent.path, from: templateRoot.path);
+          var templateFileRelativePath = path.relative(templateFile.path, from:templateRoot.path);
+          var future = compileTemplateFile(templateRoot, templateFileRelativePath).then((dartCode) {
+            var targetDartFile = new File(path.join(targetDir.path, templateDirRelativePath, '${templateFileNameNoEx}.dart'));
+            if (!targetDartFile.parent.existsSync()) {
+              targetDartFile.parent.createSync(recursive: true);
+            }
+            return targetDartFile.writeAsString(dartCode);
+          });
+          compiledFiles.add(future);
+        }
+      }
+    }, onDone: () {
+      Future.wait(compiledFiles).then((List<File> files) => _completer.complete(files));
+    }, onError: (err) {
+      _completer.completeError(err);
+    });
+
+    return _completer.future;
+  }
+
   Future<String> compileTemplateFile(Directory root, String relativeFilePath) {
     var file = new File(path.join(root.path, relativeFilePath));
     return file.readAsString().then((template) {

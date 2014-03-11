@@ -26,8 +26,15 @@ main() {
 }
 
 testRenderedTemplates() {
-  _compileTemplates();
-  _runTestFile('test_compiled_code.dart');
+  initializeBuiltInTags();
+  final templateRoot = new Directory(path.join(path.current, "templates"));
+  final compiledRoot = new Directory(path.join(path.current, "compiled"));
+  compiledRoot.delete(recursive:true).then((_) {
+    return _compileTemplates(templateRoot, compiledRoot);
+  }).then((files) {
+    print('Compiled ${files.length} fiiles');
+    _runTestFile('test_compiled_code.dart');
+  });
 }
 
 _runTestFile(String testFilePath) {
@@ -39,21 +46,6 @@ _runTestFile(String testFilePath) {
   });
 }
 
-_compileTemplates() {
-  final templateRoot = new Directory(path.join(path.current, "templates"));
-  final compiledRoot = new Directory(path.join(path.current, "compiled"));
-
-  templateRoot.listSync(recursive:true, followLinks:false).where((file) => file is File).forEach((file) {
-    setUp(() {
-      initializeBuiltInTags();
-      idForTags = 0;
-    });
-    test(file.path, () {
-      var relativePath = path.relative(file.path, from: templateRoot.path);
-      var compiledFile = new File(path.join(compiledRoot.path, relativePath.replaceAll(path.extension(relativePath), ".dart")));
-      compileTemplateFile(templateRoot, relativePath).then((dart) {
-        compiledFile.writeAsStringSync(dart);
-      });
-    });
-  });
+_compileTemplates(Directory templateRoot, Directory compiledRoot) {
+  return compileTemplateDir(templateRoot, targetDir: compiledRoot);
 }
