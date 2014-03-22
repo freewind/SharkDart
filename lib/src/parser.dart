@@ -38,9 +38,8 @@ class SharkParser extends CompositeParser {
     def('paramVariable', pattern(r'0-9a-zA-Z_$./').plus().flatten());
     def('paramDescription', ref('variableExpression') | ref('numberExpression') | ref('singleString') | ref('doubleString') | ref('normalBlock'));
     def('variableExpression', ref('variable'));
-    def('numberExpression', ref('number'));
+    def('numberExpression', (digit() | char('.')).plus().flatten());
 
-    def('number', (digit() | char('.')).plus().flatten());
     def('singleString', _sharkString("'").flatten());
     def('doubleString', _sharkString('"').flatten());
 
@@ -54,13 +53,14 @@ class SharkParser extends CompositeParser {
     ).pick(1));
 
     def('normalBlock', new BlockParser(
-      ref('atAt') | ref('sharkTag') | ref('sharkPlainTextTag') | ref('sharkExpression'))
+      ref('atAt') | ref('sharkTag') | ref('sharkPlainTextTag') | ref('sharkExpression') | any())
     );
-    def('plainTextBlock', new BlockParser());
+    def('plainTextBlock', new BlockParser(any()));
 
     def('sharkExpression', ref('simpleExpression') | ref('complexExpression'));
     def('simpleExpression', char('@') & ref('variable'));
-    def('variable', pattern(r'a-zA-Z_$').plus().flatten());
+    def('variable', (ref('variableHead') & (ref('variableHead') | digit()).star()).flatten());
+    def('variableHead', pattern(r'a-zA-Z_$'));
     def('complexExpression', char('@') & ref('complexExpressionBody'));
     def('complexExpressionBody', (
       char('{') & (
@@ -88,9 +88,6 @@ class SharkParser extends CompositeParser {
     });
     action('sharkExpression', (each) {
       var expr = each[1];
-      if (expr is List && expr.length == 1) {
-        expr = expr.first;
-      }
       return new SharkExpression(expr);
     });
     action('codeParam', (each) {
@@ -137,17 +134,14 @@ class SharkParser extends CompositeParser {
   }
 }
 
-const blockStartDelimiterChar = '{';
-const blockEndDelimiterChar = '}';
-
 final blockStartDelimiter = char('{').plus().flatten();
 final blockEndDelimiterBound = char('}').not();
 
 class BlockParser extends Parser {
 
-  final Parser nonAnyCharParser;
+  final Parser contentParser;
 
-  BlockParser([this.nonAnyCharParser=null]);
+  BlockParser(this.contentParser);
 
   @override
   Result parseOn(Context context) {
@@ -165,15 +159,7 @@ class BlockParser extends Parser {
         return result.success(new SharkBlock(elements));
       }
 
-      if (this.nonAnyCharParser != null) {
-        result = nonAnyCharParser.parseOn(entry);
-        if (result.isSuccess) {
-          body.add(result.value);
-          continue;
-        }
-      }
-
-      result = any().parseOn(entry);
+      result = contentParser.parseOn(entry);
       if (result.isSuccess) {
         body.add(result.value);
         continue;
@@ -190,7 +176,7 @@ class BlockParser extends Parser {
   String _toEndString(String capturedStart) {
     var sb = new StringBuffer();
     for (var i = 0;i < capturedStart.length;i++) {
-      sb.write(blockEndDelimiterChar);
+      sb.write('}');
     }
     return sb.toString();
   }

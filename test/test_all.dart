@@ -29,10 +29,13 @@ testRenderedTemplates() {
   initializeBuiltInTags();
   final templateRoot = new Directory(path.join(path.current, "templates"));
   final compiledRoot = new Directory(path.join(path.current, "compiled"));
-  compiledRoot.delete(recursive:true).then((_) {
-    return _compileTemplates(templateRoot, compiledRoot);
-  }).then((files) {
-    print('Compiled ${files.length} fiiles');
+
+  if (compiledRoot.existsSync()) {
+    compiledRoot.deleteSync(recursive:true);
+  }
+
+  _compileTemplates(templateRoot, compiledRoot).then((files) {
+    print('Compiled ${files.length} files');
     _runTestFile('test_compiled_code.dart');
   });
 }

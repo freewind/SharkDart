@@ -91,7 +91,6 @@ class CompilableTemplate {
   String params;
   static const defaultBodyParam = "String implicitBody_()";
   List<_IndentCompilableElement> functionBody = [];
-  String returnStatement = "";
 
   CompilableTemplate(SharkDocument doc, [this.templateRootDir, this.relativePath]) {
     if (this.templateRootDir == null) {

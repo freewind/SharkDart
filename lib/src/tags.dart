@@ -1,10 +1,5 @@
 part of shark;
 
-registerBuiltInTags() {
-  tagRepository
-    ..register('if', new IfTagHandler());
-}
-
 int idForTags = 0;
 
 nextId() => idForTags++;
@@ -112,77 +107,100 @@ class ParamsTagHandler extends TagHandler {
       ], nodesAfterTag);
     }
   }
-
 }
 
 class RenderTagHandler extends TagHandler {
-  bool implicitBody;
+  bool enableImplicitBodyByDefault;
 
-  RenderTagHandler(this.implicitBody);
+  RenderTagHandler(this.enableImplicitBodyByDefault);
 
   TagHandleResult handle(SharkTag tag, List nodesAfterTag) {
-    var layoutFunName = tag.tagParams.first.paramVariable;
-    implicitBody = tag.getParamAsBool('implicitBody', implicitBody);
+    return new _RenderTagInternalHandler(tag, nodesAfterTag, this.enableImplicitBodyByDefault).handle();
+  }
 
-    var compilables = [];
-    var layoutVar = '_shark_render_${nextId()}';
-    var importPathStmt = _calcImportPath(layoutFunName, layoutVar);
-    compilables.add(importPathStmt);
+}
 
-    List<_ParamForExtendsTag> params = tag.tagParams.sublist(1).map((param) => new _ParamForExtendsTag(
-      param.paramVariable,
-      "${param.paramVariable}_${nextId()}",
-      param.paramDescription.toCompilable()
-    )).toList();
+class _RenderTagInternalHandler {
+  final targetTemplateVar = '_shark_render_${nextId()}';
+  bool enableImplicitBody;
+  List<_ParamForRenderTag> renderParams;
+  SharkTag tag;
+  List nodesAfterTag;
 
-    params.forEach((p) {
-      compilables.add(stmt('var ${p.paramGeneratedVariable} = () {'));
-      compilables.add(stmt('var _sb_ = new StringBuffer();'));
-      compilables.add(p.paramValue);
-      compilables.add(stmt('return _sb_.toString();'));
-      compilables.add(stmt('}();'));
-    });
+  _RenderTagInternalHandler(this.tag, this.nodesAfterTag, enableImplicitBodyByDefault) {
+    this.enableImplicitBody = this.tag.getParamAsBool('enableImplicitBody', enableImplicitBodyByDefault);
+    this.renderParams = _compileRenderParams();
+  }
 
-    var paramStr = params.map((p) => "${p.paramName}: ${p.paramGeneratedVariable}").join(', ');
-    compilables.add(stmt('_sb_.write(${layoutVar}.render($paramStr, implicitBody_ : () {'));
-    compilables.add(stmt('var _sb_ = new StringBuffer();'));
-    if (tag.hasNoBody && implicitBody) {
-      compilables.add(new SharkNodeList(nodesAfterTag).toCompilable());
-    } else {
-      if (tag.body != null) {
-        compilables.add(tag.body.toCompilable());
-      }
+  TagHandleResult handle() {
+    var compilableItems = [ buildImportPathStmt() ];
+    for (var p in renderParams) {
+      compilableItems.addAll(_preCalculateParamValue(p));
     }
-    compilables.add(stmt('return _sb_.toString();'));
-    compilables.add(stmt('}));'));
+    compilableItems.addAll(_renderTargetTemplate());
 
-    if (tag.hasNoBody && implicitBody) {
-      return new TagHandleResult(compilables, []);
+    if (tag.hasNoBody && enableImplicitBody) {
+      return new TagHandleResult(compilableItems, []);
     } else {
-      return new TagHandleResult(compilables, nodesAfterTag);
+      return new TagHandleResult(compilableItems, nodesAfterTag);
     }
   }
 
-  _ImportPath _calcImportPath(String funcName, String layoutVar) {
-    if (funcName.startsWith('.')) {
-      return importStmt('import \'${funcName}.dart\' as $layoutVar;');
+  _ImportPath buildImportPathStmt() {
+    var targetTemplateName = tag.tagParams.first.paramVariable;
+    if (targetTemplateName.startsWith('.')) {
+      return importStmt('import \'${targetTemplateName}.dart\' as $targetTemplateVar;');
     } else {
       return importStmtFromTemplate((CompilableTemplate template) {
         var templateParentPath = new File(path.join(template.templateRootDir.path, template.relativePath)).parent.path;
-        var layoutFilePath = path.join(template.templateRootDir.path, funcName);
-        var relative = path.relative(layoutFilePath, from:templateParentPath);
-        return 'import \'${relative}.dart\' as $layoutVar;';
+        var targetTemplateFilePath = path.join(template.templateRootDir.path, targetTemplateName);
+        var relative = path.relative(targetTemplateFilePath, from:templateParentPath);
+        return 'import \'${relative}.dart\' as $targetTemplateVar;';
       });
     }
   }
+
+  List<_ParamForRenderTag> _compileRenderParams() {
+    return tag.tagParams.sublist(1).map((param) => new _ParamForRenderTag(
+      param.paramVariable,
+      '${param.paramVariable}_${nextId()}',
+      param.paramDescription.toCompilable()
+    )).toList();
+  }
+
+  List<CompilableElement> _preCalculateParamValue(_ParamForRenderTag p) {
+    return [
+      stmt('var ${p.paramGeneratedVariable} = () {'),
+      stmt('  var _sb_ = new StringBuffer();'),
+      p.paramValue,
+      stmt('  return _sb_.toString();'),
+      stmt('}();')
+    ];
+  }
+
+  List<CompilableElement> _renderTargetTemplate() {
+    var items = [];
+    var paramStr = renderParams.map((p) => "${p.paramName}: ${p.paramGeneratedVariable}").join(', ');
+    items.add(stmt('_sb_.write(${targetTemplateVar}.render($paramStr, implicitBody_ : () {'));
+    items.add(stmt('  var _sb_ = new StringBuffer();'));
+    if (tag.hasNoBody && enableImplicitBody) {
+      items.add(new SharkNodeList(nodesAfterTag).toCompilable());
+    } else if (tag.body != null) {
+      items.add(tag.body.toCompilable());
+    }
+    items.add(stmt('  return _sb_.toString();'));
+    items.add(stmt('}));'));
+    return items;
+  }
+
 }
 
-class _ParamForExtendsTag {
+class _ParamForRenderTag {
   String paramName;
   String paramGeneratedVariable;
   CompilableElement paramValue;
 
-  _ParamForExtendsTag(this.paramName, this.paramGeneratedVariable, this.paramValue);
+  _ParamForRenderTag(this.paramName, this.paramGeneratedVariable, this.paramValue);
 
   toString() => '$paramName : $paramGeneratedVariable : $paramValue';
 }

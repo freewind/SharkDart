@@ -12,6 +12,7 @@ test_parser() {
   });
   test('@expr', () {
     successParse('@hello', '[SharkExpression(hello)]');
+    successParse(r'@hello_$123a_$', r'[SharkExpression(hello_$123a_$)]');
     successParse('@{hello}', '[SharkExpression(hello)]');
     successParse('@{hello.world()}', '[SharkExpression(hello.world())]');
     successParse('@{hello.world((){})}', '[SharkExpression(hello.world((){}))]');
@@ -67,6 +68,7 @@ test_parser() {
     });
     test('path-like param variable', () {
       successParse('@mytag(./layout1,   user:user) {}', '[SharkTag(mytag, (./layout1, user: SharkExpression(user)), {[]})]');
+      successParse('@mytag(tags/layout1, user: user) {}', '[SharkTag(mytag, (tags/layout1, user: SharkExpression(user)), {[]})]');
     });
     test('no block', () {
       successParse('@mytag (user)', '[SharkTag(mytag, (user), <null>)]');
